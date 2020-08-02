@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Common";
+
+package common;
+
+enum NetworkType
+{
+  PRIVATE = 0;
+  TEST = 1;
+  PUBLIC = 2;
+}

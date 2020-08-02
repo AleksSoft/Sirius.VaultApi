@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Wallets";
+
+package wallets;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+service Wallets {
+  rpc Get (GetWalletGenerationRequestRequest) returns (GetWalletGenerationRequestResponse);
+  rpc Confirm (ConfirmWalletGenerationRequestRequest) returns (ConfirmWalletGenerationRequestResponse);
+  rpc Reject (RejectWalletGenerationRequestRequest) returns (RejectWalletGenerationRequestResponse);
+}
+
+// Get
+
+message GetWalletGenerationRequestRequest {
+}
+
+message GetWalletGenerationRequestResponse {
+  oneof body {
+    .wallets.GetWalletGenerationRequestResponseBody response = 1;
+    .wallets.GetWalletGenerationRequestErrorResponseBody error = 2;
+  }
+}
+
+message GetWalletGenerationRequestResponseBody {
+  repeated .wallets.WalletGenerationRequest requests = 1;
+}
+
+message GetWalletGenerationRequestErrorResponseBody {
+
+  enum ErrorCode {
+    UNKNOWN = 0;
+    INVALID_PARAMETERS = 1;
+  }
+
+  ErrorCode error_code = 1;
+  string error_message = 2;
+}
+
+message WalletGenerationRequest {
+  int64 id = 1;
+  string blockchain_id = 2;
+  .common.NetworkType network_type = 3;
+  string protocol_code = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+
+
+// Confirm
+
+message ConfirmWalletGenerationRequestRequest {
+  string request_id = 1;
+  int64 wallet_generation_request_id = 2;
+  string address = 3;
+  string public_key = 4;
+  google.protobuf.StringValue script_public_key = 5;
+}
+
+message ConfirmWalletGenerationRequestResponse {
+  oneof body {
+    ConfirmWalletGenerationRequestResponseBody response = 1;
+    ConfirmWalletGenerationRequestErrorResponseBody error = 2;
+  }
+}
+
+message ConfirmWalletGenerationRequestResponseBody {
+}
+
+message ConfirmWalletGenerationRequestErrorResponseBody {
+
+  enum ErrorCode {
+    UNKNOWN = 0;
+    INVALID_PARAMETERS = 1;
+  }
+
+  ErrorCode error_code = 1;
+  string error_message = 2;
+}
+
+// Reject
+
+message RejectWalletGenerationRequestRequest {
+  string request_id = 1;
+  int64 wallet_generation_request_id = 2;
+  .wallets.RejectionReason reason = 4;
+  string reason_message = 5;
+}
+
+enum RejectionReason {
+  OTHER = 0;
+  UNKNOWN_BLOCKCHAIN = 1;
+}
+
+message RejectWalletGenerationRequestResponse {
+  oneof body {
+    RejectWalletGenerationRequestResponseBody response = 1;
+    RejectWalletGenerationRequestErrorResponseBody error = 2;
+  }
+}
+
+message RejectWalletGenerationRequestResponseBody {
+}
+
+message RejectWalletGenerationRequestErrorResponseBody {
+
+  enum ErrorCode {
+    UNKNOWN = 0;
+    INVALID_PARAMETERS = 1;
+  }
+
+  ErrorCode error_code = 1;
+  string error_message = 2;
+}
