@@ -66,3 +66,8 @@ spec:
               value: "http://settings.common.svc.cluster.local/sirius/common"
             - name: RemoteSettingsUrls__2
               value: "http://settings.common.svc.cluster.local/sirius/vault-api"
+      tolerations:
+       - effect: NoSchedule
+         operator: Exists
+      nodeSelector:
+        agentpool: sirius
