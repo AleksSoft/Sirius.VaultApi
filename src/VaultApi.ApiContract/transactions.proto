@@ -64,8 +64,8 @@ message CoinToSpend {
   .transactions.CoinId id = 1;
   .transactions.BlockchainAsset asset = 2;
   string value = 3;
-  google.protobuf.StringValue script_public_key = 4;
-  string redeem = 5;
+  string redeem = 4;
+  string address = 5;
 }
 
 message CoinId {

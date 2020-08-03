@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -110,7 +110,7 @@ namespace VaultApi.GrpcServices
                                         },
                                         Value = coinToSpend.Value.ToString(CultureInfo.InvariantCulture),
                                         Redeem = coinToSpend.Redeem,
-                                        ScriptPublicKey = coinToSpend.ScriptPubKey
+                                        Address = coinToSpend.Address
                                     })
                         },
                         CreatedAt = Timestamp.FromDateTime(transactionSigningRequest.CreatedAt.UtcDateTime),

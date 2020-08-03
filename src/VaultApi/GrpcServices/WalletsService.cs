@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
@@ -115,8 +115,7 @@ namespace VaultApi.GrpcServices
                 TenantId = tenantId,
                 WalletGenerationRequestId = request.WalletGenerationRequestId,
                 Address = request.Address,
-                PublicKey = request.PublicKey,
-                ScriptPubKey = request.ScriptPublicKey
+                PublicKey = request.PublicKey
             });
 
             if (response.BodyCase == ConfirmWalletResponse.BodyOneofCase.Error)

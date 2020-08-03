@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -83,7 +84,9 @@ namespace VaultApi.Worker.MessageConsumers
                 NetworkType = blockchain.NetworkType,
                 ProtocolCode = blockchain.Protocol.Code,
                 DoubleSpendingProtectionType = blockchain.Protocol.DoubleSpendingProtectionType,
-                CoinsToSpend = @event.CoinsToSpend,
+                CoinsToSpend = @event.CoinsToSpend
+                    ?.Select(x => new Common.ReadModels.Transactions.Coin(x.Id,x.Asset,x.Value,x.Address,x.Redeem))
+                    .ToArray(),
                 CreatedAt = @event.CreatedAt,
                 UpdatedAt = @event.UpdatedAt
             };
