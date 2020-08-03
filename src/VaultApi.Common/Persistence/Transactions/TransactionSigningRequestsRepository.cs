@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using VaultApi.Common.ReadModels.Transactions;
 using VaultApi.Common.ReadModels.Vaults;
-using Z.EntityFramework.Plus;
 
 namespace VaultApi.Common.Persistence.Transactions
 {
@@ -44,28 +43,16 @@ namespace VaultApi.Common.Persistence.Transactions
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            var affectedRowsCount = await context.TransactionSigningRequests
-                .Where(entity => entity.Id == transactionSigningRequest.Id)
-                .UpdateAsync(factory => new TransactionSigningRequest
-                {
-                    State = transactionSigningRequest.State,
-                    RejectionReason = transactionSigningRequest.RejectionReason,
-                    RejectionReasonMessage = transactionSigningRequest.RejectionReasonMessage,
-                    UpdatedAt = transactionSigningRequest.UpdatedAt
-                });
-
-            if (affectedRowsCount == 0)
+            try
             {
-                try
-                {
-                    context.TransactionSigningRequests.Add(transactionSigningRequest);
-                    await context.SaveChangesAsync();
-                }
-                catch (Exception exception) when (exception.InnerException is PostgresException pgException &&
-                                                  pgException.SqlState == PostgresErrorCodes.UniqueViolation)
-                {
-                    // ignore
-                }
+                context.TransactionSigningRequests.Add(transactionSigningRequest);
+                await context.SaveChangesAsync();
+            }
+            catch (Exception exception) when (exception.InnerException is PostgresException pgException &&
+                                              pgException.SqlState == PostgresErrorCodes.UniqueViolation)
+            {
+                context.TransactionSigningRequests.Update(transactionSigningRequest);
+                await context.SaveChangesAsync();
             }
         }
     }

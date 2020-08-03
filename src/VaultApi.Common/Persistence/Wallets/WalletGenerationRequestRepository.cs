@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Common.ReadModels.Wallets;
-using Z.EntityFramework.Plus;
 
 namespace VaultApi.Common.Persistence.Wallets
 {
@@ -44,28 +43,16 @@ namespace VaultApi.Common.Persistence.Wallets
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            var affectedRowsCount = await context.WalletGenerationRequests
-                .Where(entity => entity.Id == walletGenerationRequest.Id)
-                .UpdateAsync(factory => new WalletGenerationRequest
-                {
-                    State = walletGenerationRequest.State,
-                    RejectionReason = walletGenerationRequest.RejectionReason,
-                    RejectionReasonMessage = walletGenerationRequest.RejectionReasonMessage,
-                    UpdatedAt = walletGenerationRequest.UpdatedAt
-                });
-
-            if (affectedRowsCount == 0)
+            try
             {
-                try
-                {
-                    context.WalletGenerationRequests.Add(walletGenerationRequest);
-                    await context.SaveChangesAsync();
-                }
-                catch (Exception exception) when (exception.InnerException is PostgresException pgException &&
-                                                  pgException.SqlState == PostgresErrorCodes.UniqueViolation)
-                {
-                    // ignore
-                }
+                context.WalletGenerationRequests.Add(walletGenerationRequest);
+                await context.SaveChangesAsync();
+            }
+            catch (Exception exception) when (exception.InnerException is PostgresException pgException &&
+                                              pgException.SqlState == PostgresErrorCodes.UniqueViolation)
+            {
+                context.WalletGenerationRequests.Update(walletGenerationRequest);
+                await context.SaveChangesAsync();
             }
         }
     }
