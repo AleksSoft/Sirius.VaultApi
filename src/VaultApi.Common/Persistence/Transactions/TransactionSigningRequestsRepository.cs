@@ -18,6 +18,13 @@ namespace VaultApi.Common.Persistence.Transactions
             _dbContextOptionsBuilder = dbContextOptionsBuilder;
         }
 
+        public async Task<TransactionSigningRequest> GetByIdAsync(long transactionSigningRequestId)
+        {
+            await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
+
+            return await context.TransactionSigningRequests.FindAsync(transactionSigningRequestId);
+        }
+
         public async Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForSharedVaultAsync()
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);

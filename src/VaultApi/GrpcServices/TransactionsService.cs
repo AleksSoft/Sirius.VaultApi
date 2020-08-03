@@ -124,15 +124,6 @@ namespace VaultApi.GrpcServices
             ConfirmTransactionSigningRequestRequest request,
             ServerCallContext context)
         {
-            var tenantId = context.GetTenantId();
-
-            if (string.IsNullOrEmpty(tenantId))
-            {
-                return GetErrorResponse(
-                    ConfirmTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
-                    "Tenant id required");
-            }
-
             var vaultType = context.GetVaultType();
 
             if (!vaultType.HasValue)
@@ -151,10 +142,13 @@ namespace VaultApi.GrpcServices
                     "Private vault id required");
             }
 
+            var transactionSigningRequest = await _transactionSigningRequestsRepository
+                .GetByIdAsync(request.TransactionSigningRequestId);
+
             var response = await _vaultAgentClient.Transactions.ConfirmAsync(new SignTransactionConfirm
             {
-                RequestId = StringUtils.FormatRequestId(tenantId, request.RequestId),
-                TenantId = tenantId,
+                RequestId = StringUtils.FormatRequestId(transactionSigningRequest.TenantId, request.RequestId),
+                TenantId = transactionSigningRequest.TenantId,
                 TransactionSigningRequestId = request.TransactionSigningRequestId,
                 SignedTransaction = request.SignedTransaction,
                 TransactionId = request.TransactionId
@@ -177,15 +171,6 @@ namespace VaultApi.GrpcServices
             RejectTransactionSigningRequestRequest request,
             ServerCallContext context)
         {
-            var tenantId = context.GetTenantId();
-
-            if (string.IsNullOrEmpty(tenantId))
-            {
-                return GetErrorResponse(
-                    RejectTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
-                    "Tenant id required");
-            }
-
             var vaultType = context.GetVaultType();
 
             if (!vaultType.HasValue)
@@ -204,10 +189,13 @@ namespace VaultApi.GrpcServices
                     "Private vault id required");
             }
 
+            var transactionSigningRequest = await _transactionSigningRequestsRepository
+                .GetByIdAsync(request.TransactionSigningRequestId);
+
             var response = await _vaultAgentClient.Transactions.RejectAsync(new SignTransactionReject
             {
-                RequestId = StringUtils.FormatRequestId(tenantId, request.RequestId),
-                TenantId = tenantId,
+                RequestId = StringUtils.FormatRequestId(transactionSigningRequest.TenantId, request.RequestId),
+                TenantId = transactionSigningRequest.TenantId,
                 TransactionSigningRequestId = request.TransactionSigningRequestId,
                 Reason = request.Reason switch
                 {

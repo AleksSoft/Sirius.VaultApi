@@ -82,15 +82,6 @@ namespace VaultApi.GrpcServices
             ConfirmWalletGenerationRequestRequest request,
             ServerCallContext context)
         {
-            var tenantId = context.GetTenantId();
-
-            if (string.IsNullOrEmpty(tenantId))
-            {
-                return GetErrorResponse(
-                    ConfirmWalletGenerationRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
-                    "Tenant id required");
-            }
-
             var vaultType = context.GetVaultType();
 
             if (!vaultType.HasValue)
@@ -109,10 +100,13 @@ namespace VaultApi.GrpcServices
                     "Private vault id required");
             }
 
+            var walletGenerationRequest = await _walletGenerationRequestRepository
+                .GetByIdAsync(request.WalletGenerationRequestId);
+
             var response = await _vaultAgentClient.Wallets.ConfirmAsync(new ConfirmWalletRequest
             {
-                RequestId = StringUtils.FormatRequestId(tenantId, request.RequestId),
-                TenantId = tenantId,
+                RequestId = StringUtils.FormatRequestId(walletGenerationRequest.TenantId, request.RequestId),
+                TenantId = walletGenerationRequest.TenantId,
                 WalletGenerationRequestId = request.WalletGenerationRequestId,
                 Address = request.Address,
                 PublicKey = request.PublicKey
@@ -135,15 +129,6 @@ namespace VaultApi.GrpcServices
             RejectWalletGenerationRequestRequest request,
             ServerCallContext context)
         {
-            var tenantId = context.GetTenantId();
-
-            if (string.IsNullOrEmpty(tenantId))
-            {
-                return GetErrorResponse(
-                    RejectWalletGenerationRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
-                    "Tenant id required");
-            }
-
             var vaultType = context.GetVaultType();
 
             if (!vaultType.HasValue)
@@ -162,10 +147,13 @@ namespace VaultApi.GrpcServices
                     "Private vault id required");
             }
 
+            var walletGenerationRequest = await _walletGenerationRequestRepository
+                .GetByIdAsync(request.WalletGenerationRequestId);
+
             var response = await _vaultAgentClient.Wallets.RejectAsync(new RejectWalletRequest
             {
-                RequestId = StringUtils.FormatRequestId(tenantId, request.RequestId),
-                TenantId = tenantId,
+                RequestId = StringUtils.FormatRequestId(walletGenerationRequest.TenantId, request.RequestId),
+                TenantId = walletGenerationRequest.TenantId,
                 WalletGenerationRequestId = request.WalletGenerationRequestId,
                 Reason = request.Reason switch
                 {

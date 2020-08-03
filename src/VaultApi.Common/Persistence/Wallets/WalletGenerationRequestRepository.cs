@@ -18,6 +18,13 @@ namespace VaultApi.Common.Persistence.Wallets
             _dbContextOptionsBuilder = dbContextOptionsBuilder;
         }
 
+        public async Task<WalletGenerationRequest> GetByIdAsync(long walletGenerationRequestId)
+        {
+            await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
+
+            return await context.WalletGenerationRequests.FindAsync(walletGenerationRequestId);
+        }
+
         public async Task<IReadOnlyList<WalletGenerationRequest>> GetPendingForSharedVaultAsync()
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
