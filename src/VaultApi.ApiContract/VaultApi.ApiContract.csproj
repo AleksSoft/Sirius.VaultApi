@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>Swisschain.Sirius.VaultApi.ApiContract</AssemblyName>
+    <PackageId>Swisschain.Sirius.VaultApi.ApiContract</PackageId>
+    <RootNamespace>Swisschain.Sirius.VaultApi.ApiContract</RootNamespace>
+    <Authors>Swisschain</Authors>
+    <Product>VaultApi</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.12.4" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.30.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.30.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="common.proto" />
+    <Protobuf Include="isalive.proto" />
+    <Protobuf Include="transactions.proto" />
+    <Protobuf Include="wallets.proto" />
+  </ItemGroup>
+
+</Project>

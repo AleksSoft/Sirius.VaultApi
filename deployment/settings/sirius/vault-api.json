@@ -1,0 +1,11 @@
+{
+  "Db": {
+    "ConnectionString": "${Sirius-VaultApi-DbConnectionString}"
+  },
+  "Auth": {
+    "JwtSecret": "${JwtTokenSecret}"
+  },
+  "VaultAgent": {
+    "Url": "http://vault-agent.sirius.svc.cluster.local/"
+  }
+}
