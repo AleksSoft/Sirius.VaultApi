@@ -10,10 +10,13 @@ namespace VaultApi.Common.Persistence
 {
     public class DatabaseContext : DbContext
     {
+        private static readonly JsonSerializerSettings JsonSerializingSettings =
+            new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
+        
         public static string SchemaName { get; } = "vault_api";
 
         public static string MigrationHistoryTable { get; } = "__EFMigrationsHistory";
-
+        
         public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
         {
@@ -46,19 +49,10 @@ namespace VaultApi.Common.Persistence
                 .HasKey(entity => entity.Id);
 
             modelBuilder.Entity<Blockchain>()
-                .OwnsOne(entity => entity.Protocol,
-                    action =>
-                    {
-                        action.Property(property => property.Code)
-                            .HasColumnName("ProtocolCode");
-                        action.Property(property => property.Name)
-                            .HasColumnName("ProtocolName");
-                        action.Property(property => property.DoubleSpendingProtectionType)
-                            .HasColumnName("DoubleSpendingProtectionType");
-                    });
-
-            modelBuilder.Entity<Blockchain>()
-                .HasIndex(entity => entity.TenantId);
+                .Property(e => e.Protocol)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<Protocol>(v, JsonSerializingSettings));
         }
 
         private static void BuildTransactions(ModelBuilder modelBuilder)
@@ -67,19 +61,17 @@ namespace VaultApi.Common.Persistence
                 .ToTable("transaction_signing_requests")
                 .HasKey(entity => entity.Id);
 
-            var jsonSerializingSettings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
-
             modelBuilder.Entity<TransactionSigningRequest>()
                 .Property(e => e.SigningAddresses)
                 .HasConversion(
-                    v => JsonConvert.SerializeObject(v, jsonSerializingSettings),
-                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<string>>(v, jsonSerializingSettings));
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<string>>(v, JsonSerializingSettings));
 
             modelBuilder.Entity<TransactionSigningRequest>()
                 .Property(e => e.CoinsToSpend)
                 .HasConversion(
-                    v => JsonConvert.SerializeObject(v, jsonSerializingSettings),
-                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<Coin>>(v, jsonSerializingSettings));
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<Coin>>(v, JsonSerializingSettings));
 
             modelBuilder.Entity<TransactionSigningRequest>()
                 .HasIndex(entity => entity.TenantId);
