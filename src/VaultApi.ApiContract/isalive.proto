@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Monitoring";
 
-package common;
+package swisschain.sirius.vaultApi.monitoring;
 
 service Monitoring {
   rpc IsAlive (IsAliveRequest) returns (IsAliveResponse);

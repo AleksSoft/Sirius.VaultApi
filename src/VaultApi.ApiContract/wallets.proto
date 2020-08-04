@@ -2,9 +2,8 @@ syntax = "proto3";
 
 option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Wallets";
 
-package wallets;
+package swisschain.sirius.vaultApi.wallets;
 
-import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
 import "common.proto";
 
@@ -21,13 +20,13 @@ message GetWalletGenerationRequestRequest {
 
 message GetWalletGenerationRequestResponse {
   oneof body {
-    .wallets.GetWalletGenerationRequestResponseBody response = 1;
-    .wallets.GetWalletGenerationRequestErrorResponseBody error = 2;
+    .swisschain.sirius.vaultApi.wallets.GetWalletGenerationRequestResponseBody response = 1;
+    .swisschain.sirius.vaultApi.wallets.GetWalletGenerationRequestErrorResponseBody error = 2;
   }
 }
 
 message GetWalletGenerationRequestResponseBody {
-  repeated .wallets.WalletGenerationRequest requests = 1;
+  repeated .swisschain.sirius.vaultApi.wallets.WalletGenerationRequest requests = 1;
 }
 
 message GetWalletGenerationRequestErrorResponseBody {
@@ -44,7 +43,7 @@ message GetWalletGenerationRequestErrorResponseBody {
 message WalletGenerationRequest {
   int64 id = 1;
   string blockchain_id = 2;
-  .common.NetworkType network_type = 3;
+  .swisschain.sirius.vaultApi.common.NetworkType network_type = 3;
   string protocol_code = 4;
   google.protobuf.Timestamp created_at = 5;
   google.protobuf.Timestamp updated_at = 6;
@@ -59,7 +58,6 @@ message ConfirmWalletGenerationRequestRequest {
   int64 wallet_generation_request_id = 2;
   string address = 3;
   string public_key = 4;
-  google.protobuf.StringValue script_public_key = 5;
 }
 
 message ConfirmWalletGenerationRequestResponse {
@@ -88,7 +86,7 @@ message ConfirmWalletGenerationRequestErrorResponseBody {
 message RejectWalletGenerationRequestRequest {
   string request_id = 1;
   int64 wallet_generation_request_id = 2;
-  .wallets.RejectionReason reason = 4;
+  .swisschain.sirius.vaultApi.wallets.RejectionReason reason = 4;
   string reason_message = 5;
 }
 

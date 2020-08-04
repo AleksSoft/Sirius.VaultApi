@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf;
@@ -108,7 +107,7 @@ namespace VaultApi.GrpcServices
                                             },
                                             Accuracy = coinToSpend.Asset.Accuracy
                                         },
-                                        Value = coinToSpend.Value.ToString(CultureInfo.InvariantCulture),
+                                        Value = coinToSpend.Value,
                                         Redeem = coinToSpend.Redeem,
                                         Address = coinToSpend.Address
                                     })

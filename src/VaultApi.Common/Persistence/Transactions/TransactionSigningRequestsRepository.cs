@@ -46,7 +46,7 @@ namespace VaultApi.Common.Persistence.Transactions
                 .ToListAsync();
         }
 
-        public async Task AddOrIgnoreAsync(TransactionSigningRequest transactionSigningRequest)
+        public async Task AddOrUpdateAsync(TransactionSigningRequest transactionSigningRequest)
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 

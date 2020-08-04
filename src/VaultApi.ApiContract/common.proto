@@ -2,11 +2,15 @@ syntax = "proto3";
 
 option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Common";
 
-package common;
+package swisschain.sirius.vaultApi.common;
 
 enum NetworkType
 {
   PRIVATE = 0;
   TEST = 1;
   PUBLIC = 2;
+}
+
+message BigDecimal {
+  string value = 1;
 }

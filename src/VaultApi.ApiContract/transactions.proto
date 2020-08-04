@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Transactions";
 
-package transactions;
+package swisschain.sirius.vaultApi.transactions;
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
@@ -21,13 +21,13 @@ message GetTransactionSigningRequestRequest {
 
 message GetTransactionSigningRequestResponse {
   oneof body {
-    .transactions.GetTransactionSigningRequestResponseBody response = 1;
-    .transactions.GetTransactionSigningRequestErrorResponseBody error = 2;
+    .swisschain.sirius.vaultApi.transactions.GetTransactionSigningRequestResponseBody response = 1;
+    .swisschain.sirius.vaultApi.transactions.GetTransactionSigningRequestErrorResponseBody error = 2;
   }
 }
 
 message GetTransactionSigningRequestResponseBody {
-  repeated .transactions.TransactionSigningRequest requests = 1;
+  repeated .swisschain.sirius.vaultApi.transactions.TransactionSigningRequest requests = 1;
 }
 
 message GetTransactionSigningRequestErrorResponseBody {
@@ -44,12 +44,12 @@ message GetTransactionSigningRequestErrorResponseBody {
 message TransactionSigningRequest {
   int64 id = 1;
   string blockchain_id = 2;
-  .common.NetworkType network_type = 3;
+  .swisschain.sirius.vaultApi.common.NetworkType network_type = 3;
   string protocol_code = 4;
-  .transactions.DoubleSpendingProtectionType double_spending_protection_type = 5;
+  .swisschain.sirius.vaultApi.transactions.DoubleSpendingProtectionType double_spending_protection_type = 5;
   bytes built_transaction = 6;
   repeated string signing_addresses = 7;
-  repeated .transactions.CoinToSpend coins_to_spend = 8;
+  repeated .swisschain.sirius.vaultApi.transactions.CoinToSpend coins_to_spend = 8;
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp updated_at = 10;
 }
@@ -61,9 +61,9 @@ enum DoubleSpendingProtectionType
 }
 
 message CoinToSpend {
-  .transactions.CoinId id = 1;
-  .transactions.BlockchainAsset asset = 2;
-  string value = 3;
+  .swisschain.sirius.vaultApi.transactions.CoinId id = 1;
+  .swisschain.sirius.vaultApi.transactions.BlockchainAsset asset = 2;
+  .swisschain.sirius.vaultApi.common.BigDecimal value = 3;
   google.protobuf.StringValue redeem = 4;
   string address = 5;
 }
@@ -118,7 +118,7 @@ message ConfirmTransactionSigningRequestErrorResponseBody {
 message RejectTransactionSigningRequestRequest {
   string request_id = 1;
   int64 transaction_signing_request_id = 2;
-  .transactions.TransactionSigningRequestRejectionReason reason = 4;
+  .swisschain.sirius.vaultApi.transactions.TransactionSigningRequestRejectionReason reason = 4;
   string reason_message = 5;
 }
 

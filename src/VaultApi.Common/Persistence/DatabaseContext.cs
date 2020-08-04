@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Swisschain.Sirius.Sdk.Primitives;
 using VaultApi.Common.ReadModels.Blockchains;
 using VaultApi.Common.ReadModels.Transactions;
 using VaultApi.Common.ReadModels.Vaults;
@@ -15,8 +14,8 @@ namespace VaultApi.Common.Persistence
 
         public static string MigrationHistoryTable { get; } = "__EFMigrationsHistory";
 
-        public DatabaseContext(DbContextOptions<DatabaseContext> options) :
-            base(options)
+        public DatabaseContext(DbContextOptions<DatabaseContext> options)
+            : base(options)
         {
         }
 
@@ -54,8 +53,6 @@ namespace VaultApi.Common.Persistence
                             .HasColumnName("ProtocolCode");
                         action.Property(property => property.Name)
                             .HasColumnName("ProtocolName");
-                        action.Property(property => property.StartBlockNumber)
-                            .HasColumnName("StartBlockNumber");
                         action.Property(property => property.DoubleSpendingProtectionType)
                             .HasColumnName("DoubleSpendingProtectionType");
                     });
@@ -85,19 +82,16 @@ namespace VaultApi.Common.Persistence
                     v => JsonConvert.DeserializeObject<IReadOnlyCollection<Coin>>(v, jsonSerializingSettings));
 
             modelBuilder.Entity<TransactionSigningRequest>()
-                .HasIndex(entity => new
-                {
-                    entity.VaultType,
-                    entity.State
-                });
+                .HasIndex(entity => entity.TenantId);
 
             modelBuilder.Entity<TransactionSigningRequest>()
-                .HasIndex(entity => new
-                {
-                    entity.VaultId,
-                    entity.VaultType,
-                    entity.State
-                });
+                .HasIndex(entity => entity.VaultId);
+
+            modelBuilder.Entity<TransactionSigningRequest>()
+                .HasIndex(entity => entity.VaultType);
+
+            modelBuilder.Entity<TransactionSigningRequest>()
+                .HasIndex(entity => entity.State);
         }
 
         private static void BuildVaults(ModelBuilder modelBuilder)
@@ -120,19 +114,13 @@ namespace VaultApi.Common.Persistence
                 .HasIndex(entity => entity.TenantId);
 
             modelBuilder.Entity<WalletGenerationRequest>()
-                .HasIndex(entity => new
-                {
-                    entity.VaultType,
-                    entity.State
-                });
+                .HasIndex(entity => entity.VaultId);
 
             modelBuilder.Entity<WalletGenerationRequest>()
-                .HasIndex(entity => new
-                {
-                    entity.VaultId,
-                    entity.VaultType,
-                    entity.State
-                });
+                .HasIndex(entity => entity.VaultType);
+
+            modelBuilder.Entity<WalletGenerationRequest>()
+                .HasIndex(entity => entity.State);
         }
     }
 }

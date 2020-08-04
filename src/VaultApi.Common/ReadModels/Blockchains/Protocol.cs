@@ -8,8 +8,6 @@ namespace VaultApi.Common.ReadModels.Blockchains
 
         public string Name { get; set; }
 
-        public long StartBlockNumber { get; set; }
-
         public DoubleSpendingProtectionType DoubleSpendingProtectionType { get; set; }
     }
 }

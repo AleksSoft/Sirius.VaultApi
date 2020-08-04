@@ -33,7 +33,6 @@ namespace VaultApi.Worker.MessageConsumers
                 {
                     Code = @event.Protocol.Code,
                     Name = @event.Protocol.Name,
-                    StartBlockNumber = @event.Protocol.StartBlockNumber,
                     DoubleSpendingProtectionType = @event.Protocol.DoubleSpendingProtectionType
                 },
                 TenantId = @event.TenantId,
