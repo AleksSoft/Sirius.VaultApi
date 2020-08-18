@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -41,7 +41,7 @@ namespace VaultApi.Worker.MessageConsumers
                 UpdatedAt = @event.UpdatedAt
             };
 
-            await _vaultsRepository.AddOrUpdateAsync(vault);
+            await _vaultsRepository.Upsert(vault);
 
             _logger.LogInformation($"{nameof(VaultUpdated)} has been processed {{@context}}", @event);
         }

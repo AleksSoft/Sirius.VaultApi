@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using VaultApi.Common.ReadModels.Transactions;
 
@@ -12,6 +12,6 @@ namespace VaultApi.Common.Persistence.Transactions
 
         Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForPrivateVaultAsync(long vaultId);
 
-        Task AddOrUpdateAsync(TransactionSigningRequest transactionSigningRequest);
+        Task Upsert(TransactionSigningRequest transactionSigningRequest);
     }
 }

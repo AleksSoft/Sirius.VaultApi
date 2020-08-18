@@ -1,8 +1,10 @@
-using System;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using VaultApi.Common.ReadModels.Vaults;
+using Z.EntityFramework.Plus;
 
 namespace VaultApi.Common.Persistence.Vaults
 {
@@ -22,20 +24,40 @@ namespace VaultApi.Common.Persistence.Vaults
             return await context.Vaults.FindAsync(vaultId);
         }
 
-        public async Task AddOrUpdateAsync(Vault vault)
+        public async Task Upsert(Vault vault)
         {
+            int affectedRowsCount = 0;
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            try
+            if (vault.CreatedAt != vault.UpdatedAt)
             {
-                context.Vaults.Add(vault);
-                await context.SaveChangesAsync();
+                affectedRowsCount = await context.Vaults
+                    .Where(x => x.Id == vault.Id &&
+                                x.UpdatedAt <= vault.UpdatedAt)
+                    .UpdateAsync(x => new Vault
+                    {
+                        Id = vault.Id,
+                        UpdatedAt = vault.UpdatedAt,
+                        CreatedAt = vault.CreatedAt,
+                        TenantId = vault.TenantId,
+                        Name = vault.Name,
+                        Status = vault.Status,
+                        Type = vault.Type
+                    });
             }
-            catch (Exception exception) when (exception.InnerException is PostgresException pgException &&
-                                              pgException.SqlState == PostgresErrorCodes.UniqueViolation)
+
+            if (affectedRowsCount == 0)
             {
-                context.Vaults.Update(vault);
-                await context.SaveChangesAsync();
+                try
+                {
+                    context.Vaults.Add(vault);
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateException e) when (e.InnerException is PostgresException pgEx
+                                                  && pgEx.SqlState == PostgresErrorCodes.UniqueViolation)
+                {
+                    //Swallow error: the entity was already added
+                }
             }
         }
     }

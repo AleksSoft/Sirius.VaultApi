@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -80,7 +80,7 @@ namespace VaultApi.Worker.MessageConsumers
                 UpdatedAt = @event.UpdatedAt
             };
 
-            await _walletGenerationRequestRepository.AddOrUpdateAsync(walletGenerationRequest);
+            await _walletGenerationRequestRepository.Upsert(walletGenerationRequest);
 
             _logger.LogInformation($"{nameof(WalletGenerationRequestUpdated)} has been processed {{@context}}", @event);
         }
