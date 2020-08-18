@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Swisschain.Sirius.Integrations.MessagingContract.Blockchains;
@@ -37,10 +37,10 @@ namespace VaultApi.Worker.MessageConsumers
                 },
                 TenantId = @event.TenantId,
                 CreatedAt = @event.CreatedAt,
-                UpdatedAt = @event.UpdatedAt
+                UpdatedAt = @event.UpdatedAt,
             };
 
-            await _blockchainsRepository.AddOrUpdateAsync(blockchain);
+            await _blockchainsRepository.Upsert(blockchain);
 
             _logger.LogInformation($"{nameof(BlockchainUpdated)} has been processed {{@context}}", @event);
         }

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using VaultApi.Common.ReadModels.Blockchains;
 
 namespace VaultApi.Common.Persistence.Blockchains
@@ -7,6 +7,6 @@ namespace VaultApi.Common.Persistence.Blockchains
     {
         Task<Blockchain> GetByIdAsync(string blockchainId);
 
-        Task AddOrUpdateAsync(Blockchain blockchain);
+        Task Upsert(Blockchain blockchain);
     }
 }
