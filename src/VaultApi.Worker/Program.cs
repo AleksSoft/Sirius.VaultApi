@@ -17,11 +17,11 @@ namespace VaultApi.Worker
 
         public static void Main(string[] args)
         {
-            Console.Title = "VaultApi Worker";
+            Console.Title = "Sirius VaultApi Worker";
 
             var remoteSettingsConfig = ApplicationEnvironment.Config.Get<RemoteSettingsConfig>();
 
-            using var loggerFactory = LogConfigurator.Configure("VaultApi",
+            using var loggerFactory = LogConfigurator.Configure("Sirius",
                 remoteSettingsConfig.RemoteSettingsUrls ?? Array.Empty<string>());
 
             var logger = loggerFactory.CreateLogger<Program>();
