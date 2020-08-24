@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using VaultApi.Common.ReadModels.Blockchains;
+using VaultApi.Common.ReadModels.KeyKeepers;
+using VaultApi.Common.ReadModels.TransactionApprovalConfirmations;
 using VaultApi.Common.ReadModels.Transactions;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Common.ReadModels.Wallets;
@@ -12,17 +14,21 @@ namespace VaultApi.Common.Persistence
     {
         private static readonly JsonSerializerSettings JsonSerializingSettings =
             new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
-        
+
         public static string SchemaName { get; } = "vault_api";
 
         public static string MigrationHistoryTable { get; } = "__EFMigrationsHistory";
-        
+
         public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
         {
         }
 
         public DbSet<Blockchain> Blockchains { get; set; }
+
+        public DbSet<KeyKeeper> KeyKeepers { get; set; }
+
+        public DbSet<TransactionApprovalConfirmation> TransactionApprovalConfirmations { get; set; }
 
         public DbSet<TransactionSigningRequest> TransactionSigningRequests { get; set; }
 
@@ -35,6 +41,8 @@ namespace VaultApi.Common.Persistence
             modelBuilder.HasDefaultSchema(SchemaName);
 
             BuildBlockchain(modelBuilder);
+            BuildKeyKeepers(modelBuilder);
+            BuildTransactionApprovalConfirmations(modelBuilder);
             BuildTransactions(modelBuilder);
             BuildVaults(modelBuilder);
             BuildWalletGenerationRequests(modelBuilder);
@@ -53,6 +61,26 @@ namespace VaultApi.Common.Persistence
                 .HasConversion(
                     v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
                     v => JsonConvert.DeserializeObject<Protocol>(v, JsonSerializingSettings));
+        }
+
+        private static void BuildKeyKeepers(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<KeyKeeper>()
+                .ToTable("key_keepers")
+                .HasKey(property => property.Id);
+
+            modelBuilder.Entity<KeyKeeper>()
+                .HasIndex(property => property.KeyId);
+        }
+
+        private static void BuildTransactionApprovalConfirmations(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TransactionApprovalConfirmation>()
+                .ToTable("transaction_approval_confirmations")
+                .HasKey(entity => entity.Id);
+
+            modelBuilder.Entity<TransactionApprovalConfirmation>()
+                .HasIndex(entity => entity.TransactionApprovalRequestId);
         }
 
         private static void BuildTransactions(ModelBuilder modelBuilder)

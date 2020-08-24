@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VaultApi.Common.Persistence.Blockchains;
+using VaultApi.Common.Persistence.KeyKeepers;
+using VaultApi.Common.Persistence.TransactionApprovalConfirmations;
 using VaultApi.Common.Persistence.Transactions;
 using VaultApi.Common.Persistence.Vaults;
 using VaultApi.Common.Persistence.Wallets;
@@ -13,6 +15,9 @@ namespace VaultApi.Common.Persistence
         public static IServiceCollection AddPersistence(this IServiceCollection services, string connectionString)
         {
             services.AddTransient<IBlockchainsRepository, BlockchainsRepository>();
+            services.AddTransient<IKeyKeepersRepository, KeyKeepersRepository>();
+            services.AddTransient<ITransactionApprovalConfirmationsRepository,
+                TransactionApprovalConfirmationsRepository>();
             services.AddTransient<ITransactionSigningRequestsRepository, TransactionSigningRequestsRepository>();
             services.AddTransient<IVaultsRepository, VaultsRepository>();
             services.AddTransient<IWalletGenerationRequestRepository, WalletGenerationRequestRepository>();

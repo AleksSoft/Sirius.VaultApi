@@ -60,6 +60,8 @@ namespace VaultApi.Worker.MessageConsumers
                     => Common.ReadModels.Transactions.TransactionSigningRequestState.Stale,
                     Swisschain.Sirius.VaultAgent.MessagingContract.Transactions.TransactionSigningRequestState.Rejected
                     => Common.ReadModels.Transactions.TransactionSigningRequestState.Rejected,
+                    Swisschain.Sirius.VaultAgent.MessagingContract.Transactions.TransactionSigningRequestState.Approving
+                    => Common.ReadModels.Transactions.TransactionSigningRequestState.Approving,
                     _ => throw new ArgumentOutOfRangeException(nameof(@event.State), @event.State, null)
                 },
                 RejectionReason = @event.RejectionReason switch

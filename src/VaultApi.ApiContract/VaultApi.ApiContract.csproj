@@ -21,6 +21,8 @@
   <ItemGroup>
     <Protobuf Include="common.proto" />
     <Protobuf Include="isalive.proto" />
+    <Protobuf Include="transaction-approval-confirmations.proto" />
+    <Protobuf Include="transaction-approval-requests.proto" />
     <Protobuf Include="transactions.proto" />
     <Protobuf Include="wallets.proto" />
   </ItemGroup>

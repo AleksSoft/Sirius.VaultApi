@@ -47,28 +47,48 @@ namespace VaultApi.Worker
 
                         factoryConfigurator.SetLoggerFactory(provider.Container.GetRequiredService<ILoggerFactory>());
 
-                        factoryConfigurator.ReceiveEndpoint("sirius-vault-api-blockchain-updates",
+                        factoryConfigurator.ReceiveEndpoint(
+                            "sirius-vault-api-blockchain-updates",
                             endpoint =>
                             {
-                                endpoint.Consumer(provider.Container.
-                                    GetRequiredService<BlockchainUpdatesConsumer>);
+                                endpoint.Consumer(provider.Container
+                                    .GetRequiredService<BlockchainUpdatesConsumer>);
                             });
 
-                        factoryConfigurator.ReceiveEndpoint("sirius-vault-api-transaction-signing-request-updates",
+                        factoryConfigurator.ReceiveEndpoint(
+                            "sirius-vault-api-key-keepers-updates",
+                            endpoint =>
+                            {
+                                endpoint.Consumer(provider.Container
+                                    .GetRequiredService<KeyKeeperUpdatedConsumer>);
+                            });
+
+                        factoryConfigurator.ReceiveEndpoint(
+                            "sirius-vault-api-transaction-approval-confirmation-updates",
+                            endpoint =>
+                            {
+                                endpoint.Consumer(provider.Container
+                                    .GetRequiredService<TransactionApprovalConfirmationAddedConsumer>);
+                            });
+
+                        factoryConfigurator.ReceiveEndpoint(
+                            "sirius-vault-api-transaction-signing-request-updates",
                             endpoint =>
                             {
                                 endpoint.Consumer(provider.Container
                                     .GetRequiredService<TransactionSigningRequestUpdatesConsumer>);
                             });
 
-                        factoryConfigurator.ReceiveEndpoint("sirius-vault-api-vault-updates",
+                        factoryConfigurator.ReceiveEndpoint(
+                            "sirius-vault-api-vault-updates",
                             endpoint =>
                             {
-                                endpoint.Consumer(provider.Container.
-                                    GetRequiredService<VaultUpdatedConsumer>);
+                                endpoint.Consumer(provider.Container
+                                    .GetRequiredService<VaultUpdatedConsumer>);
                             });
 
-                        factoryConfigurator.ReceiveEndpoint("sirius-vault-api-wallet-generation-request-updates",
+                        factoryConfigurator.ReceiveEndpoint(
+                            "sirius-vault-api-wallet-generation-request-updates",
                             endpoint =>
                             {
                                 endpoint.Consumer(provider.Container
