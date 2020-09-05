@@ -12,6 +12,6 @@ namespace VaultApi.Common.Persistence.Transactions
 
         Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForPrivateVaultAsync(long vaultId);
 
-        Task Upsert(TransactionSigningRequest transactionSigningRequest);
+        Task InsertOrUpdateAsync(TransactionSigningRequest transactionSigningRequest);
     }
 }

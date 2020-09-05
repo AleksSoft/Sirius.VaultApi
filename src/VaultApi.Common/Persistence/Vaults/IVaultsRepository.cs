@@ -7,6 +7,6 @@ namespace VaultApi.Common.Persistence.Vaults
     {
         Task<Vault> GetByIdAsync(long vaultId);
 
-        Task Upsert(Vault vault);
+        Task InsertOrUpdateAsync(Vault vault);
     }
 }

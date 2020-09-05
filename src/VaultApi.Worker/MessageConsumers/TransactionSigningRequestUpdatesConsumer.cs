@@ -93,7 +93,7 @@ namespace VaultApi.Worker.MessageConsumers
                 UpdatedAt = @event.UpdatedAt
             };
 
-            await _transactionSigningRequestsRepository.Upsert(transactionSigningRequest);
+            await _transactionSigningRequestsRepository.InsertOrUpdateAsync(transactionSigningRequest);
 
             _logger.LogInformation($"{nameof(TransactionSigningRequestUpdated)} has been processed {{@context}}",
                 @event);

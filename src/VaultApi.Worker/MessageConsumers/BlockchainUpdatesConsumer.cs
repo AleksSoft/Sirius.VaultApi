@@ -40,7 +40,7 @@ namespace VaultApi.Worker.MessageConsumers
                 UpdatedAt = @event.UpdatedAt,
             };
 
-            await _blockchainsRepository.Upsert(blockchain);
+            await _blockchainsRepository.InsertOrUpdateAsync(blockchain);
 
             _logger.LogInformation($"{nameof(BlockchainUpdated)} has been processed {{@context}}", @event);
         }

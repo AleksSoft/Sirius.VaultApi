@@ -47,33 +47,29 @@ namespace VaultApi.Common.Persistence.Wallets
                 .ToListAsync();
         }
 
-        public async Task Upsert(WalletGenerationRequest walletGenerationRequest)
+        public async Task InsertOrUpdateAsync(WalletGenerationRequest walletGenerationRequest)
         {
-            int affectedRowsCount = 0;
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            if (walletGenerationRequest.CreatedAt != walletGenerationRequest.UpdatedAt)
-            {
-                affectedRowsCount = await context.WalletGenerationRequests
-                    .Where(x => x.Id == walletGenerationRequest.Id &&
-                                x.UpdatedAt <= walletGenerationRequest.UpdatedAt)
-                    .UpdateAsync(x => new WalletGenerationRequest
-                    {
-                        Id = walletGenerationRequest.Id,
-                        CreatedAt = walletGenerationRequest.CreatedAt,
-                        UpdatedAt = walletGenerationRequest.UpdatedAt,
-                        VaultType = walletGenerationRequest.VaultType,
-                        BlockchainId = walletGenerationRequest.BlockchainId,
-                        VaultId = walletGenerationRequest.VaultId,
-                        NetworkType = walletGenerationRequest.NetworkType,
-                        ProtocolCode = walletGenerationRequest.ProtocolCode,
-                        Component = walletGenerationRequest.Component,
-                        State = walletGenerationRequest.State,
-                        RejectionReason = walletGenerationRequest.RejectionReason,
-                        RejectionReasonMessage = walletGenerationRequest.RejectionReasonMessage,
-                        TenantId = walletGenerationRequest.TenantId
-                    });
-            }
+            var affectedRowsCount = await context.WalletGenerationRequests
+                .Where(entity => entity.Id == walletGenerationRequest.Id &&
+                                 entity.UpdatedAt <= walletGenerationRequest.UpdatedAt)
+                .UpdateAsync(x => new WalletGenerationRequest
+                {
+                    Id = walletGenerationRequest.Id,
+                    TenantId = walletGenerationRequest.TenantId,
+                    VaultId = walletGenerationRequest.VaultId,
+                    VaultType = walletGenerationRequest.VaultType,
+                    BlockchainId = walletGenerationRequest.BlockchainId,
+                    NetworkType = walletGenerationRequest.NetworkType,
+                    ProtocolCode = walletGenerationRequest.ProtocolCode,
+                    Component = walletGenerationRequest.Component,
+                    State = walletGenerationRequest.State,
+                    RejectionReason = walletGenerationRequest.RejectionReason,
+                    RejectionReasonMessage = walletGenerationRequest.RejectionReasonMessage,
+                    CreatedAt = walletGenerationRequest.CreatedAt,
+                    UpdatedAt = walletGenerationRequest.UpdatedAt
+                });
 
             if (affectedRowsCount == 0)
             {
@@ -82,10 +78,10 @@ namespace VaultApi.Common.Persistence.Wallets
                     context.WalletGenerationRequests.Add(walletGenerationRequest);
                     await context.SaveChangesAsync();
                 }
-                catch (DbUpdateException e) when (e.InnerException is PostgresException pgEx
-                                                  && pgEx.SqlState == PostgresErrorCodes.UniqueViolation)
+                catch (DbUpdateException exception) when (exception.InnerException is PostgresException pgException &&
+                                                          pgException.SqlState == PostgresErrorCodes.UniqueViolation)
                 {
-                    //Swallow error: the entity was already added
+                    // ignore
                 }
             }
         }

@@ -1,8 +1,9 @@
-using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using VaultApi.Common.ReadModels.KeyKeepers;
+using Z.EntityFramework.Plus;
 
 namespace VaultApi.Common.Persistence.KeyKeepers
 {
@@ -33,16 +34,30 @@ namespace VaultApi.Common.Persistence.KeyKeepers
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            try
+            var affectedRowsCount = await context.KeyKeepers
+                .Where(entity => entity.Id == keyKeeper.Id && entity.UpdatedAt <= keyKeeper.UpdatedAt)
+                .UpdateAsync(entity => new KeyKeeper
+                {
+                    Id = keyKeeper.Id,
+                    TenantId = keyKeeper.TenantId,
+                    KeyId = keyKeeper.KeyId,
+                    Description = keyKeeper.Description,
+                    CreatedAt = keyKeeper.CreatedAt,
+                    UpdatedAt = keyKeeper.UpdatedAt
+                });
+
+            if (affectedRowsCount == 0)
             {
-                context.KeyKeepers.Add(keyKeeper);
-                await context.SaveChangesAsync();
-            }
-            catch (Exception exception) when (exception.InnerException is PostgresException pgException &&
-                                              pgException.SqlState == PostgresErrorCodes.UniqueViolation)
-            {
-                context.KeyKeepers.Update(keyKeeper);
-                await context.SaveChangesAsync();
+                try
+                {
+                    context.KeyKeepers.Add(keyKeeper);
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateException exception) when (exception.InnerException is PostgresException pgException &&
+                                                          pgException.SqlState == PostgresErrorCodes.UniqueViolation)
+                {
+                    // ignore
+                }
             }
         }
     }
