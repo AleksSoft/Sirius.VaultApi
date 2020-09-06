@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.TransactionApprovalConfirmations";
+
+package swisschain.sirius.vaultApi.transactionApprovalConfirmations;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+service TransactionApprovalConfirmations {
+  rpc Get (GetTransactionApprovalConfirmationRequest) returns (GetTransactionApprovalConfirmationResponse);
+}
+
+// create
+
+message GetTransactionApprovalConfirmationRequest {
+  int64 transaction_approval_request_id = 1;
+}
+
+message GetTransactionApprovalConfirmationResponseBody {
+  repeated swisschain.sirius.vaultApi.transactionApprovalConfirmations.TransactionApprovalConfirmation confirmations = 1;
+}
+
+message TransactionApprovalConfirmation {
+  enum TransactionApprovalConfirmationStatus {
+    UNKNOWN = 0;
+    CONFIRMED = 1;
+    REJECTED = 2;
+    SKIPPED = 3;
+  }
+
+  int64 id = 1;
+  string key_id = 2;
+  google.protobuf.StringValue message = 3;
+  google.protobuf.StringValue secret = 4;
+  TransactionApprovalConfirmationStatus status = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message GetTransactionApprovalConfirmationErrorResponseBody {
+
+  enum ErrorCode {
+    UNKNOWN = 0;
+    INVALID_PARAMETERS = 1;
+  }
+
+  ErrorCode error_code = 1;
+  string error_message = 2;
+}
+
+message GetTransactionApprovalConfirmationResponse {
+  oneof body {
+    GetTransactionApprovalConfirmationResponseBody response = 1;
+    GetTransactionApprovalConfirmationErrorResponseBody error = 2;
+  }
+}

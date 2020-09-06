@@ -7,6 +7,6 @@ namespace VaultApi.Common.Persistence.Blockchains
     {
         Task<Blockchain> GetByIdAsync(string blockchainId);
 
-        Task Upsert(Blockchain blockchain);
+        Task InsertOrUpdateAsync(Blockchain blockchain);
     }
 }

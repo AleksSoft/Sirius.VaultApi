@@ -41,7 +41,7 @@ namespace VaultApi.Worker.MessageConsumers
                 UpdatedAt = @event.UpdatedAt
             };
 
-            await _vaultsRepository.Upsert(vault);
+            await _vaultsRepository.InsertOrUpdateAsync(vault);
 
             _logger.LogInformation($"{nameof(VaultUpdated)} has been processed {{@context}}", @event);
         }

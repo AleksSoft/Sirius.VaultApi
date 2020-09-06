@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.TransactionApprovalRequests";
+
+package swisschain.sirius.vaultApi.transactionApprovalRequests;
+
+import "google/protobuf/timestamp.proto";
+
+service TransactionApprovalRequests {
+  rpc Create (CreateTransactionApprovalRequestRequest) returns (CreateTransactionApprovalRequestResponse);
+}
+
+// create 
+
+message CreateTransactionApprovalRequestRequest {
+  string request_id = 1;
+  int64 transaction_signing_request_id = 2;
+  string blockchain_id = 3;
+  repeated .swisschain.sirius.vaultApi.transactionApprovalRequests.KeyKeeperRequest key_keeper_requests = 4;
+}
+
+message CreateTransactionApprovalRequestResponseBody {
+  int64 id = 1;
+  google.protobuf.Timestamp created_at = 2;
+}
+
+message CreateTransactionApprovalRequestErrorResponseBody {
+
+  enum ErrorCode {
+    UNKNOWN = 0;
+    INVALID_PARAMETERS = 1;
+  }
+
+  ErrorCode error_code = 1;
+  string error_message = 2;
+}
+
+message CreateTransactionApprovalRequestResponse {
+  oneof body {
+    CreateTransactionApprovalRequestResponseBody response = 1;
+    CreateTransactionApprovalRequestErrorResponseBody error = 2;
+  }
+}
+
+message KeyKeeperRequest {
+  string key_id = 1;
+  string message = 2;
+  string secret = 3;
+}

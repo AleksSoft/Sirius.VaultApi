@@ -80,7 +80,7 @@ namespace VaultApi.Worker.MessageConsumers
                 UpdatedAt = @event.UpdatedAt
             };
 
-            await _walletGenerationRequestRepository.Upsert(walletGenerationRequest);
+            await _walletGenerationRequestRepository.InsertOrUpdateAsync(walletGenerationRequest);
 
             _logger.LogInformation($"{nameof(WalletGenerationRequestUpdated)} has been processed {{@context}}", @event);
         }

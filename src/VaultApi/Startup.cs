@@ -7,7 +7,6 @@ using VaultApi.Common.Persistence;
 using VaultApi.GrpcServices;
 using Swisschain.Sdk.Server.Common;
 using Swisschain.Sirius.VaultAgent.ApiClient;
-using VaultApi.Common;
 using VaultApi.Common.HostedServices;
 
 namespace VaultApi
@@ -17,14 +16,16 @@ namespace VaultApi
         public Startup(IConfiguration configuration)
             : base(configuration)
         {
-            AddJwtAuth(Config.Auth.JwtSecret, Audience.SiriusAudience);
+            AddJwtAuth(Config.Auth.JwtSecret, Config.Auth.Audience);
         }
 
         protected override void ConfigureServicesExt(IServiceCollection services)
         {
             base.ConfigureServicesExt(services);
 
-            services.AddTransient<IVaultAgentClient>(factory => new VaultAgentClient(Config.VaultAgent.Url))
+            services
+                .AddHttpClient()
+                .AddTransient<IVaultAgentClient>(factory => new VaultAgentClient(Config.VaultAgent.Url))
                 .AddPersistence(Config.Db.ConnectionString)
                 .AddHostedService<DbSchemaValidationHost>();
         }
@@ -34,6 +35,8 @@ namespace VaultApi
             base.RegisterEndpoints(endpoints);
 
             endpoints.MapGrpcService<MonitoringService>();
+            endpoints.MapGrpcService<TransactionApprovalConfirmationsService>();
+            endpoints.MapGrpcService<TransactionApprovalRequestsService>();
             endpoints.MapGrpcService<TransactionsService>();
             endpoints.MapGrpcService<WalletsService>();
         }

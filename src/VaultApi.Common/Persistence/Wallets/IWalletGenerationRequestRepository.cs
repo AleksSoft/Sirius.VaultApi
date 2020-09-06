@@ -12,6 +12,6 @@ namespace VaultApi.Common.Persistence.Wallets
 
         Task<IReadOnlyList<WalletGenerationRequest>> GetPendingForPrivateVaultAsync(long vaultId);
 
-        Task Upsert(WalletGenerationRequest walletGenerationRequest);
+        Task InsertOrUpdateAsync(WalletGenerationRequest walletGenerationRequest);
     }
 }

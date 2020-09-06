@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using VaultApi.Common.ReadModels.Blockchains;
 using VaultApi.Common.ReadModels.Transactions;
 using VaultApi.Common.ReadModels.Vaults;
 using Z.EntityFramework.Plus;
@@ -48,39 +46,35 @@ namespace VaultApi.Common.Persistence.Transactions
                 .ToListAsync();
         }
 
-        public async Task Upsert(TransactionSigningRequest transactionSigningRequest)
+        public async Task InsertOrUpdateAsync(TransactionSigningRequest transactionSigningRequest)
         {
-            int affectedRowsCount = 0;
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            if (transactionSigningRequest.CreatedAt != transactionSigningRequest.UpdatedAt)
-            {
-                affectedRowsCount = await context.TransactionSigningRequests
-                    .Where(x => x.Id == transactionSigningRequest.Id &&
-                                x.UpdatedAt <= transactionSigningRequest.UpdatedAt)
-                    .UpdateAsync(x => new TransactionSigningRequest
-                    {
-                        BlockchainId = transactionSigningRequest.BlockchainId,
-                        BuiltTransaction = transactionSigningRequest.BuiltTransaction,
-                        CoinsToSpend = transactionSigningRequest.CoinsToSpend,
-                        Component = transactionSigningRequest.Component,
-                        CreatedAt = transactionSigningRequest.CreatedAt,
-                        DoubleSpendingProtectionType = transactionSigningRequest.DoubleSpendingProtectionType,
-                        Id = transactionSigningRequest.Id,
-                        NetworkType = transactionSigningRequest.NetworkType,
-                        OperationId = transactionSigningRequest.OperationId,
-                        OperationType = transactionSigningRequest.OperationType,
-                        ProtocolCode = transactionSigningRequest.ProtocolCode,
-                        RejectionReason = transactionSigningRequest.RejectionReason,
-                        RejectionReasonMessage = transactionSigningRequest.RejectionReasonMessage,
-                        SigningAddresses = transactionSigningRequest.SigningAddresses,
-                        State = transactionSigningRequest.State,
-                        TenantId = transactionSigningRequest.TenantId,
-                        UpdatedAt = transactionSigningRequest.UpdatedAt,
-                        VaultId = transactionSigningRequest.VaultId,
-                        VaultType = transactionSigningRequest.VaultType
-                    });
-            }
+            var affectedRowsCount = await context.TransactionSigningRequests
+                .Where(entity => entity .Id == transactionSigningRequest.Id &&
+                                 entity .UpdatedAt <= transactionSigningRequest.UpdatedAt)
+                .UpdateAsync(x => new TransactionSigningRequest
+                {
+                    Id = transactionSigningRequest.Id,
+                    TenantId = transactionSigningRequest.TenantId,
+                    VaultId = transactionSigningRequest.VaultId,
+                    VaultType = transactionSigningRequest.VaultType,
+                    Component = transactionSigningRequest.Component,
+                    OperationId = transactionSigningRequest.OperationId,
+                    OperationType = transactionSigningRequest.OperationType,
+                    BlockchainId = transactionSigningRequest.BlockchainId,
+                    State = transactionSigningRequest.State,
+                    RejectionReasonMessage = transactionSigningRequest.RejectionReasonMessage,
+                    RejectionReason = transactionSigningRequest.RejectionReason,
+                    NetworkType = transactionSigningRequest.NetworkType,
+                    ProtocolCode = transactionSigningRequest.ProtocolCode,
+                    DoubleSpendingProtectionType = transactionSigningRequest.DoubleSpendingProtectionType,
+                    BuiltTransaction = transactionSigningRequest.BuiltTransaction,
+                    SigningAddresses = transactionSigningRequest.SigningAddresses,
+                    CoinsToSpend = transactionSigningRequest.CoinsToSpend,
+                    CreatedAt = transactionSigningRequest.CreatedAt,
+                    UpdatedAt = transactionSigningRequest.UpdatedAt,
+                });
 
             if (affectedRowsCount == 0)
             {
@@ -89,10 +83,10 @@ namespace VaultApi.Common.Persistence.Transactions
                     context.TransactionSigningRequests.Add(transactionSigningRequest);
                     await context.SaveChangesAsync();
                 }
-                catch (DbUpdateException e) when (e.InnerException is PostgresException pgEx
-                                                  && pgEx.SqlState == PostgresErrorCodes.UniqueViolation)
+                catch (DbUpdateException exception) when (exception.InnerException is PostgresException pgException &&
+                                                          pgException.SqlState == PostgresErrorCodes.UniqueViolation)
                 {
-                    //Swallow error: the entity was already added
+                    // ignore
                 }
             }
         }

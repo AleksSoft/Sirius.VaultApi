@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -24,27 +23,22 @@ namespace VaultApi.Common.Persistence.Blockchains
             return await context.Blockchains.FindAsync(blockchainId);
         }
 
-        public async Task Upsert(Blockchain blockchain)
+        public async Task InsertOrUpdateAsync(Blockchain blockchain)
         {
-            int affectedRowsCount = 0;
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            if (blockchain.CreatedAt != blockchain.UpdatedAt)
-            {
-                affectedRowsCount = await context.Blockchains
-                    .Where(x => x.Id == blockchain.Id &&
-                                x.UpdatedAt <= blockchain.UpdatedAt)
-                    .UpdateAsync(x => new Blockchain
-                    {
-                        NetworkType = blockchain.NetworkType,
-                        UpdatedAt = blockchain.UpdatedAt,
-                        Name = blockchain.Name,
-                        Protocol = blockchain.Protocol,
-                        TenantId = blockchain.TenantId,
-                        CreatedAt = blockchain.CreatedAt,
-                        Id = blockchain.Id
-                    });
-            }
+            var affectedRowsCount = await context.Blockchains
+                .Where(entity => entity.Id == blockchain.Id && entity.UpdatedAt <= blockchain.UpdatedAt)
+                .UpdateAsync(entity => new Blockchain
+                {
+                    Id = blockchain.Id,
+                    TenantId = blockchain.TenantId,
+                    Name = blockchain.Name,
+                    Protocol = blockchain.Protocol,
+                    NetworkType = blockchain.NetworkType,
+                    CreatedAt = blockchain.CreatedAt,
+                    UpdatedAt = blockchain.UpdatedAt
+                });
 
             if (affectedRowsCount == 0)
             {
@@ -53,10 +47,10 @@ namespace VaultApi.Common.Persistence.Blockchains
                     context.Blockchains.Add(blockchain);
                     await context.SaveChangesAsync();
                 }
-                catch (DbUpdateException e) when (e.InnerException is PostgresException pgEx
-                                                  && pgEx.SqlState == PostgresErrorCodes.UniqueViolation)
+                catch (DbUpdateException exception) when (exception.InnerException is PostgresException pgException &&
+                                                          pgException.SqlState == PostgresErrorCodes.UniqueViolation)
                 {
-                    //Swallow error: the entity was already added
+                    // ignore
                 }
             }
         }
