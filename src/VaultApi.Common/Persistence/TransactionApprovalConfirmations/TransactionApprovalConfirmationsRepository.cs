@@ -34,7 +34,7 @@ namespace VaultApi.Common.Persistence.TransactionApprovalConfirmations
 
             try
             {
-                context.TransactionApprovalConfirmations.AddRange(transactionApprovalConfirmation);
+                context.TransactionApprovalConfirmations.Add(transactionApprovalConfirmation);
                 await context.SaveChangesAsync();
             }
             catch (Exception exception) when (exception.InnerException is PostgresException pgException &&

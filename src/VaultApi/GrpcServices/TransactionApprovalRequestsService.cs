@@ -61,11 +61,6 @@ namespace VaultApi.GrpcServices
 
             var tenantId = context.GetTenantId();
 
-            if (string.IsNullOrEmpty(tenantId))
-            {
-                tenantId = "unknown"; // TODO: add tenant id to the private vault api key
-            }
-
             var createRequest = new Swisschain.Sirius.VaultAgent.ApiContract.TransactionApprovalRequests.
                 CreateTransactionApprovalRequestRequest
                 {
