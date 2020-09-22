@@ -45,11 +45,11 @@ message WalletGenerationRequest {
   string blockchain_id = 2;
   .swisschain.sirius.vaultApi.common.NetworkType network_type = 3;
   string protocol_code = 4;
-  google.protobuf.Timestamp created_at = 5;
-  google.protobuf.Timestamp updated_at = 6;
+  string group = 5;
+  string tenant_id = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
-
-
 
 // Confirm
 
@@ -58,6 +58,8 @@ message ConfirmWalletGenerationRequestRequest {
   int64 wallet_generation_request_id = 2;
   string address = 3;
   string public_key = 4;
+  string signature = 5;
+  string host_process_id = 6;
 }
 
 message ConfirmWalletGenerationRequestResponse {
@@ -88,6 +90,7 @@ message RejectWalletGenerationRequestRequest {
   int64 wallet_generation_request_id = 2;
   .swisschain.sirius.vaultApi.wallets.RejectionReason reason = 4;
   string reason_message = 5;
+  string host_process_id = 6;
 }
 
 enum RejectionReason {
