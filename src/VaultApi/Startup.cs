@@ -35,8 +35,6 @@ namespace VaultApi
             base.RegisterEndpoints(endpoints);
 
             endpoints.MapGrpcService<MonitoringService>();
-            endpoints.MapGrpcService<TransactionApprovalConfirmationsService>();
-            endpoints.MapGrpcService<TransactionApprovalRequestsService>();
             endpoints.MapGrpcService<TransactionsService>();
             endpoints.MapGrpcService<WalletsService>();
         }
