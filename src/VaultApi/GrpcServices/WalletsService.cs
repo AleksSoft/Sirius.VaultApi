@@ -112,7 +112,7 @@ namespace VaultApi.GrpcServices
                 WalletGenerationRequestId = request.WalletGenerationRequestId,
                 Address = request.Address,
                 PublicKey = request.PublicKey,
-                Signature = request.Signature,
+                VaultSignature = request.Signature,
                 HostProcessId = request.HostProcessId
             });
 
