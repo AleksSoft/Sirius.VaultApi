@@ -76,6 +76,7 @@ namespace VaultApi.Worker.MessageConsumers
                 VaultType = vault.Type,
                 NetworkType = blockchain.NetworkType,
                 ProtocolCode = blockchain.Protocol.Code,
+                Group = @event.Group,
                 CreatedAt = @event.CreatedAt,
                 UpdatedAt = @event.UpdatedAt
             };

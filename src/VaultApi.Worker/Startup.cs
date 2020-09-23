@@ -64,14 +64,6 @@ namespace VaultApi.Worker
                             });
 
                         factoryConfigurator.ReceiveEndpoint(
-                            "sirius-vault-api-transaction-approval-confirmation-updates",
-                            endpoint =>
-                            {
-                                endpoint.Consumer(provider.Container
-                                    .GetRequiredService<TransactionApprovalConfirmationAddedConsumer>);
-                            });
-
-                        factoryConfigurator.ReceiveEndpoint(
                             "sirius-vault-api-transaction-signing-request-updates",
                             endpoint =>
                             {

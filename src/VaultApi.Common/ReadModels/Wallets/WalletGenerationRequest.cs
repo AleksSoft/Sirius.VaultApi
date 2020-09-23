@@ -28,6 +28,8 @@ namespace VaultApi.Common.ReadModels.Wallets
 
         public string RejectionReasonMessage { get; set; }
 
+        public string Group { get; set; }
+
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }

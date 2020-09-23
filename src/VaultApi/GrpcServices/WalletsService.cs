@@ -71,6 +71,8 @@ namespace VaultApi.GrpcServices
                             typeof(Swisschain.Sirius.Sdk.Primitives.NetworkType))
                     },
                     ProtocolCode = walletGenerationRequest.ProtocolCode,
+                    Group = walletGenerationRequest.Group,
+                    TenantId = walletGenerationRequest.TenantId,
                     CreatedAt = Timestamp.FromDateTime(walletGenerationRequest.CreatedAt.UtcDateTime),
                     UpdatedAt = Timestamp.FromDateTime(walletGenerationRequest.UpdatedAt.UtcDateTime)
                 }));
@@ -109,7 +111,9 @@ namespace VaultApi.GrpcServices
                 TenantId = walletGenerationRequest.TenantId,
                 WalletGenerationRequestId = request.WalletGenerationRequestId,
                 Address = request.Address,
-                PublicKey = request.PublicKey
+                PublicKey = request.PublicKey,
+                VaultSignature = request.Signature,
+                HostProcessId = request.HostProcessId
             });
 
             if (response.BodyCase == ConfirmWalletResponse.BodyOneofCase.Error)
@@ -166,7 +170,8 @@ namespace VaultApi.GrpcServices
                         (int) request.Reason,
                         typeof(Swisschain.Sirius.VaultApi.ApiContract.Wallets.RejectionReason))
                 },
-                ReasonMessage = request.ReasonMessage
+                ReasonMessage = request.ReasonMessage,
+                HostProcessId = request.HostProcessId
             });
 
             if (response.BodyCase == RejectWalletResponse.BodyOneofCase.Error)

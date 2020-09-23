@@ -141,6 +141,10 @@ namespace VaultApi.Common.Persistence
 
             modelBuilder.Entity<WalletGenerationRequest>()
                 .HasIndex(entity => entity.State);
+
+            modelBuilder.Entity<WalletGenerationRequest>()
+                .Property(entity => entity.Group)
+                .IsRequired();
         }
     }
 }
