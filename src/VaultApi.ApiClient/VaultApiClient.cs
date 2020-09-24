@@ -22,14 +22,14 @@ namespace Swisschain.Sirius.VaultApi.ApiClient
                 });
 
             Monitoring = new Monitoring.MonitoringClient(interceptor);
-            TransferSigninRequests = new TransferSigninRequests.TransferSigninRequestsClient(interceptor);
+            TransferSigningRequests = new TransferSigningRequests.TransferSigningRequestsClient(interceptor);
             TransferValidationRequests = new TransferValidationRequests.TransferValidationRequestsClient(interceptor);
             Wallets = new Wallets.WalletsClient(interceptor);
         }
 
         public Monitoring.MonitoringClient Monitoring { get; }
 
-        public TransferSigninRequests.TransferSigninRequestsClient TransferSigninRequests { get; }
+        public TransferSigningRequests.TransferSigningRequestsClient TransferSigningRequests { get; }
 
         public TransferValidationRequests.TransferValidationRequestsClient TransferValidationRequests { get; }
 

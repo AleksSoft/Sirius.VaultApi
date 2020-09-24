@@ -2,13 +2,13 @@ syntax = "proto3";
 
 option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.TransferSigninRequests";
 
-package swisschain.sirius.vaultApi.transferSigninRequests;
+package swisschain.sirius.vaultApi.transferSigningRequests;
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
 import "common.proto";
 
-service TransferSigninRequests {
+service TransferSigningRequests {
     rpc Get (GetTransferSigningRequestsRequest) returns (GetTransferSigningRequestsResponse);
     rpc Confirm (ConfirmTransferSigningRequestRequest) returns (ConfirmTransferSigningRequestResponse);
     rpc Reject (RejectTransferSigningRequestRequest) returns (RejectTransferSigningRequestResponse);
