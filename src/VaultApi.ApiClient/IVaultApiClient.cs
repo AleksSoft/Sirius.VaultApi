@@ -9,7 +9,7 @@ namespace Swisschain.Sirius.VaultApi.ApiClient
     {
         Monitoring.MonitoringClient Monitoring { get; }
 
-        TransferSigninRequests.TransferSigninRequestsClient TransferSigninRequests { get; }
+        TransferSigningRequests.TransferSigningRequestsClient TransferSigningRequests { get; }
 
         TransferValidationRequests.TransferValidationRequestsClient TransferValidationRequests { get; }
 

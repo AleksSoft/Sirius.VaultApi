@@ -16,7 +16,7 @@ using VaultApi.Utils;
 namespace VaultApi.GrpcServices
 {
     [Authorize]
-    public class TransferSigningRequestsService : TransferSigninRequests.TransferSigninRequestsBase
+    public class TransferSigningRequestsService : TransferSigningRequests.TransferSigningRequestsBase
     {
         private readonly ITransactionSigningRequestsRepository _transactionSigningRequestsRepository;
         private readonly IVaultAgentClient _vaultAgentClient;
