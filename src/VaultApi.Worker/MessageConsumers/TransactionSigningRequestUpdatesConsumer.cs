@@ -8,6 +8,7 @@ using VaultApi.Common.Persistence.Blockchains;
 using VaultApi.Common.Persistence.Transactions;
 using VaultApi.Common.Persistence.Vaults;
 using VaultApi.Common.ReadModels.Transactions;
+using UserContext = VaultApi.Common.ReadModels.Transactions.UserContext;
 
 namespace VaultApi.Worker.MessageConsumers
 {
@@ -88,7 +89,15 @@ namespace VaultApi.Worker.MessageConsumers
                     ?.Select(x => new Common.ReadModels.Transactions.Coin(x.Id,x.Asset,x.Value,x.Address,x.Redeem))
                     .ToArray(),
                 CreatedAt = @event.CreatedAt,
-                UpdatedAt = @event.UpdatedAt
+                UpdatedAt = @event.UpdatedAt,
+                UserContext = new UserContext()
+                {
+                    AccountReferenceId = @event.UserContext.AccountReferenceId,
+                    ApiKeyId = @event.UserContext.ApiKeyId,
+                    PassClientIp = @event.UserContext.PassClientIp,
+                    UserId = @event.UserContext.UserId,
+                    WithdrawalReferenceId = @event.UserContext.WithdrawalReferenceId
+                }
             };
 
             await _transactionSigningRequestsRepository.InsertOrUpdateAsync(transactionSigningRequest);
