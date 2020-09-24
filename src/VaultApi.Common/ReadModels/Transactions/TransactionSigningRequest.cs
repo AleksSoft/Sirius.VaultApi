@@ -44,5 +44,7 @@ namespace VaultApi.Common.ReadModels.Transactions
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }
+
+        public UserContext UserContext { get; set; }
     }
 }

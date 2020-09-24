@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using VaultApi.Common.ReadModels.Blockchains;
@@ -100,6 +100,12 @@ namespace VaultApi.Common.Persistence
                 .HasConversion(
                     v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
                     v => JsonConvert.DeserializeObject<IReadOnlyCollection<Coin>>(v, JsonSerializingSettings));
+
+            modelBuilder.Entity<TransactionSigningRequest>()
+                .Property(e => e.UserContext)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<UserContext>(v, JsonSerializingSettings));
 
             modelBuilder.Entity<TransactionSigningRequest>()
                 .HasIndex(entity => entity.TenantId);

@@ -14,6 +14,14 @@ service Transactions {
   rpc Reject (RejectTransactionSigningRequestRequest) returns (RejectTransactionSigningRequestResponse);
 }
 
+message UserContext{
+  string pass_client_ip = 1;
+  google.protobuf.StringValue user_id = 2;
+  google.protobuf.StringValue api_key_id = 3;
+  google.protobuf.StringValue account_reference_id = 4;
+  google.protobuf.StringValue withdrawal_reference_id = 5;
+}
+
 // Get
 
 message GetTransactionSigningRequestRequest {
@@ -52,6 +60,7 @@ message TransactionSigningRequest {
   repeated .swisschain.sirius.vaultApi.transactions.CoinToSpend coins_to_spend = 8;
   google.protobuf.Timestamp created_at = 9;
   google.protobuf.Timestamp updated_at = 10;
+  UserContext user_context = 11;
 }
 
 enum DoubleSpendingProtectionType

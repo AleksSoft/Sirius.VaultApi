@@ -12,6 +12,7 @@ using VaultApi.Common.Persistence.Transactions;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
 using VaultApi.Utils;
+using UserContext = Swisschain.Sirius.VaultApi.ApiContract.Transactions.UserContext;
 
 namespace VaultApi.GrpcServices
 {
@@ -113,7 +114,15 @@ namespace VaultApi.GrpcServices
                                     })
                         },
                         CreatedAt = Timestamp.FromDateTime(transactionSigningRequest.CreatedAt.UtcDateTime),
-                        UpdatedAt = Timestamp.FromDateTime(transactionSigningRequest.UpdatedAt.UtcDateTime)
+                        UpdatedAt = Timestamp.FromDateTime(transactionSigningRequest.UpdatedAt.UtcDateTime),
+                        UserContext = new UserContext()
+                        {
+                            AccountReferenceId = transactionSigningRequest.UserContext.AccountReferenceId,
+                            UserId = transactionSigningRequest.UserContext.UserId,
+                            ApiKeyId = transactionSigningRequest.UserContext.ApiKeyId,
+                            WithdrawalReferenceId = transactionSigningRequest.UserContext.WithdrawalReferenceId,
+                            PassClientIp = transactionSigningRequest.UserContext.PassClientIp 
+                        }
                     }));
 
             return new GetTransactionSigningRequestResponse {Response = response};
