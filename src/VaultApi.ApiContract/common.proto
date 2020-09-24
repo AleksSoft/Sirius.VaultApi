@@ -2,15 +2,43 @@ syntax = "proto3";
 
 option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Common";
 
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
 package swisschain.sirius.vaultApi.common;
 
-enum NetworkType
-{
-  PRIVATE = 0;
-  TEST = 1;
-  PUBLIC = 2;
+enum NetworkType {
+    PRIVATE = 0;
+    TEST = 1;
+    PUBLIC = 2;
+}
+
+message NullableNetworkType {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        NetworkType network_type = 2;
+    }
+}
+
+enum TagType {
+    TEXT = 0;
+    NUMBER = 1;
+}
+
+message NullableTagType {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        TagType tag_type = 2;
+    }
 }
 
 message BigDecimal {
-  string value = 1;
+    string value = 1;
+}
+
+message NullableTimestamp {
+    oneof kind {
+        google.protobuf.NullValue null = 1;
+        google.protobuf.Timestamp timestamp = 2;
+    }
 }

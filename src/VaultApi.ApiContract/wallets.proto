@@ -8,9 +8,9 @@ import "google/protobuf/timestamp.proto";
 import "common.proto";
 
 service Wallets {
-  rpc Get (GetWalletGenerationRequestRequest) returns (GetWalletGenerationRequestResponse);
-  rpc Confirm (ConfirmWalletGenerationRequestRequest) returns (ConfirmWalletGenerationRequestResponse);
-  rpc Reject (RejectWalletGenerationRequestRequest) returns (RejectWalletGenerationRequestResponse);
+    rpc Get (GetWalletGenerationRequestRequest) returns (GetWalletGenerationRequestResponse);
+    rpc Confirm (ConfirmWalletGenerationRequestRequest) returns (ConfirmWalletGenerationRequestResponse);
+    rpc Reject (RejectWalletGenerationRequestRequest) returns (RejectWalletGenerationRequestResponse);
 }
 
 // Get
@@ -19,54 +19,54 @@ message GetWalletGenerationRequestRequest {
 }
 
 message GetWalletGenerationRequestResponse {
-  oneof body {
-    .swisschain.sirius.vaultApi.wallets.GetWalletGenerationRequestResponseBody response = 1;
-    .swisschain.sirius.vaultApi.wallets.GetWalletGenerationRequestErrorResponseBody error = 2;
-  }
+    oneof body {
+        .swisschain.sirius.vaultApi.wallets.GetWalletGenerationRequestResponseBody response = 1;
+        .swisschain.sirius.vaultApi.wallets.GetWalletGenerationRequestErrorResponseBody error = 2;
+    }
 }
 
 message GetWalletGenerationRequestResponseBody {
-  repeated .swisschain.sirius.vaultApi.wallets.WalletGenerationRequest requests = 1;
+    repeated .swisschain.sirius.vaultApi.wallets.WalletGenerationRequest requests = 1;
 }
 
 message GetWalletGenerationRequestErrorResponseBody {
 
-  enum ErrorCode {
-    UNKNOWN = 0;
-    INVALID_PARAMETERS = 1;
-  }
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
 
-  ErrorCode error_code = 1;
-  string error_message = 2;
+    ErrorCode error_code = 1;
+    string error_message = 2;
 }
 
 message WalletGenerationRequest {
-  int64 id = 1;
-  string blockchain_id = 2;
-  .swisschain.sirius.vaultApi.common.NetworkType network_type = 3;
-  string protocol_code = 4;
-  string group = 5;
-  string tenant_id = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+    int64 id = 1;
+    string blockchain_id = 2;
+    .swisschain.sirius.vaultApi.common.NetworkType network_type = 3;
+    string protocol_code = 4;
+    string group = 5;
+    string tenant_id = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
 }
 
 // Confirm
 
 message ConfirmWalletGenerationRequestRequest {
-  string request_id = 1;
-  int64 wallet_generation_request_id = 2;
-  string address = 3;
-  string public_key = 4;
-  string signature = 5;
-  string host_process_id = 6;
+    string request_id = 1;
+    int64 wallet_generation_request_id = 2;
+    string address = 3;
+    string public_key = 4;
+    string signature = 5;
+    string host_process_id = 6;
 }
 
 message ConfirmWalletGenerationRequestResponse {
-  oneof body {
-    ConfirmWalletGenerationRequestResponseBody response = 1;
-    ConfirmWalletGenerationRequestErrorResponseBody error = 2;
-  }
+    oneof body {
+        ConfirmWalletGenerationRequestResponseBody response = 1;
+        ConfirmWalletGenerationRequestErrorResponseBody error = 2;
+    }
 }
 
 message ConfirmWalletGenerationRequestResponseBody {
@@ -74,35 +74,35 @@ message ConfirmWalletGenerationRequestResponseBody {
 
 message ConfirmWalletGenerationRequestErrorResponseBody {
 
-  enum ErrorCode {
-    UNKNOWN = 0;
-    INVALID_PARAMETERS = 1;
-  }
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
 
-  ErrorCode error_code = 1;
-  string error_message = 2;
+    ErrorCode error_code = 1;
+    string error_message = 2;
 }
 
 // Reject
 
 message RejectWalletGenerationRequestRequest {
-  string request_id = 1;
-  int64 wallet_generation_request_id = 2;
-  .swisschain.sirius.vaultApi.wallets.RejectionReason reason = 4;
-  string reason_message = 5;
-  string host_process_id = 6;
+    string request_id = 1;
+    int64 wallet_generation_request_id = 2;
+    .swisschain.sirius.vaultApi.wallets.RejectionReason reason = 4;
+    string reason_message = 5;
+    string host_process_id = 6;
 }
 
 enum RejectionReason {
-  OTHER = 0;
-  UNKNOWN_BLOCKCHAIN = 1;
+    OTHER = 0;
+    UNKNOWN_BLOCKCHAIN = 1;
 }
 
 message RejectWalletGenerationRequestResponse {
-  oneof body {
-    RejectWalletGenerationRequestResponseBody response = 1;
-    RejectWalletGenerationRequestErrorResponseBody error = 2;
-  }
+    oneof body {
+        RejectWalletGenerationRequestResponseBody response = 1;
+        RejectWalletGenerationRequestErrorResponseBody error = 2;
+    }
 }
 
 message RejectWalletGenerationRequestResponseBody {
@@ -110,11 +110,11 @@ message RejectWalletGenerationRequestResponseBody {
 
 message RejectWalletGenerationRequestErrorResponseBody {
 
-  enum ErrorCode {
-    UNKNOWN = 0;
-    INVALID_PARAMETERS = 1;
-  }
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
 
-  ErrorCode error_code = 1;
-  string error_message = 2;
+    ErrorCode error_code = 1;
+    string error_message = 2;
 }
