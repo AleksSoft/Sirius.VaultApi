@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.TransferSigninRequests";
+
+package swisschain.sirius.vaultApi.transferSigninRequests;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+service TransferSigninRequests {
+    rpc Get (GetTransferSigningRequestsRequest) returns (GetTransferSigningRequestsResponse);
+    rpc Confirm (ConfirmTransferSigningRequestRequest) returns (ConfirmTransferSigningRequestResponse);
+    rpc Reject (RejectTransferSigningRequestRequest) returns (RejectTransferSigningRequestResponse);
+}
+
+// Get
+
+message GetTransferSigningRequestsRequest {
+}
+
+message GetTransferSigningRequestsResponse {
+    oneof body {
+        GetTransferSigningRequestsResponseBody response = 1;
+        GetTransferSigningRequestsErrorResponseBody error = 2;
+    }
+}
+
+message GetTransferSigningRequestsResponseBody {
+    repeated TransferSigningRequest requests = 1;
+}
+
+message GetTransferSigningRequestsErrorResponseBody {
+
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
+
+    ErrorCode error_code = 1;
+    string error_message = 2;
+}
+
+message TransferSigningRequest {
+    int64 id = 1;
+    string blockchain_id = 2;
+    .swisschain.sirius.vaultApi.common.NetworkType network_type = 3;
+    string protocol_code = 4;
+    DoubleSpendingProtectionType double_spending_protection_type = 5;
+    bytes built_transaction = 6;
+    repeated string signing_addresses = 7;
+    repeated CoinToSpend coins_to_spend = 8;
+    string policy_result = 9;
+    string guardian_signature = 10;
+    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp updated_at = 12;
+}
+
+enum DoubleSpendingProtectionType {
+    COINS = 0;
+    NONCE = 1;
+}
+
+message CoinToSpend {
+    CoinId id = 1;
+    BlockchainAsset asset = 2;
+    .swisschain.sirius.vaultApi.common.BigDecimal value = 3;
+    google.protobuf.StringValue redeem = 4;
+    string address = 5;
+}
+
+message CoinId {
+    string transaction_id = 1;
+    int32 number = 2;
+}
+
+message BlockchainAsset {
+    BlockchainAssetId id = 1;
+    int32 accuracy = 2;
+}
+
+message BlockchainAssetId {
+    string symbol = 1;
+    google.protobuf.StringValue address = 2;
+}
+
+// Confirm
+
+message ConfirmTransferSigningRequestRequest {
+    string request_id = 1;
+    int64 transfer_signing_request_id = 2;
+    string transaction_id = 4;
+    bytes signed_transaction = 5;
+    string vault_signature = 6;
+    string host_process_id = 7;
+}
+
+message ConfirmTransferSigningRequestResponse {
+    oneof body {
+        ConfirmTransferSigningRequestResponseBody response = 1;
+        ConfirmTransferSigningRequestErrorResponseBody error = 2;
+    }
+}
+
+message ConfirmTransferSigningRequestResponseBody {
+}
+
+message ConfirmTransferSigningRequestErrorResponseBody {
+
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
+
+    ErrorCode error_code = 1;
+    string error_message = 2;
+}
+
+// Reject
+
+message RejectTransferSigningRequestRequest {
+    string request_id = 1;
+    int64 transfer_signing_request_id = 2;
+    TransferSigningRequestRejectionReason reason = 4;
+    string reason_message = 5;
+    string vault_signature = 6;
+    string host_process_id = 7;
+}
+
+enum TransferSigningRequestRejectionReason {
+    OTHER = 0;
+    UNKNOWN_BLOCKCHAIN = 1;
+    INVALID_SIGNATURE = 2;
+}
+
+message RejectTransferSigningRequestResponse {
+    oneof body {
+        RejectTransferSigningRequestResponseBody response = 1;
+        RejectTransferSigningRequestErrorResponseBody error = 2;
+    }
+}
+
+message RejectTransferSigningRequestResponseBody {
+}
+
+message RejectTransferSigningRequestErrorResponseBody {
+
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
+
+    ErrorCode error_code = 1;
+    string error_message = 2;
+}
