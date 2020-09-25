@@ -16,7 +16,7 @@ jobs:
         with:
           dotnet-version: 3.1.100
       - name: Build
-        run: dotnet build --configuration Release /p:AssemblyVersion=${GITHUB_REF#refs/tags/api-client-}
+        run: dotnet build --configuration Release
       - name: Test
         run: dotnet test --no-build --configuration Release
       - name: Create the package
