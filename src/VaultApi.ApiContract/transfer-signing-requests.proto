@@ -51,7 +51,7 @@ message TransferSigningRequest {
     repeated string signing_addresses = 7;
     repeated CoinToSpend coins_to_spend = 8;
     string policy_result = 9;
-    string guardian_signature = 10;
+    string signature = 10;
     google.protobuf.Timestamp created_at = 11;
     google.protobuf.Timestamp updated_at = 12;
 }
@@ -91,7 +91,7 @@ message ConfirmTransferSigningRequestRequest {
     int64 transfer_signing_request_id = 2;
     string transaction_id = 4;
     bytes signed_transaction = 5;
-    string vault_signature = 6;
+    string signature = 6;
     string host_process_id = 7;
 }
 
@@ -123,7 +123,7 @@ message RejectTransferSigningRequestRequest {
     int64 transfer_signing_request_id = 2;
     TransferSigningRequestRejectionReason reason = 4;
     string reason_message = 5;
-    string vault_signature = 6;
+    string signature = 6;
     string host_process_id = 7;
 }
 

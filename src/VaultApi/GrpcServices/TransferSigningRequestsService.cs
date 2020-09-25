@@ -113,7 +113,7 @@ namespace VaultApi.GrpcServices
                                     })
                         },
                         PolicyResult = "PolicyResult", // TODO:
-                        GuardianSignature = "GuardianSignature", // TODO:
+                        Signature = "GuardianSignature", // TODO:
                         CreatedAt = Timestamp.FromDateTime(transactionSigningRequest.CreatedAt.UtcDateTime),
                         UpdatedAt = Timestamp.FromDateTime(transactionSigningRequest.UpdatedAt.UtcDateTime)
                     }));
