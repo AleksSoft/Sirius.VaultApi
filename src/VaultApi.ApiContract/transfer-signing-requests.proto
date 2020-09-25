@@ -51,7 +51,7 @@ message TransferSigningRequest {
     repeated string signing_addresses = 7;
     repeated CoinToSpend coins_to_spend = 8;
     string policy_result = 9;
-    string signature = 10;
+    string guardian_signature = 10;
     google.protobuf.Timestamp created_at = 11;
     google.protobuf.Timestamp updated_at = 12;
 }
