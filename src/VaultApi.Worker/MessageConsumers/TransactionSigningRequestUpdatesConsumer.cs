@@ -96,7 +96,8 @@ namespace VaultApi.Worker.MessageConsumers
                     ApiKeyId = @event.UserContext.ApiKeyId,
                     PassClientIp = @event.UserContext.PassClientIp,
                     UserId = @event.UserContext.UserId,
-                    WithdrawalReferenceId = @event.UserContext.WithdrawalReferenceId
+                    WithdrawalReferenceId = @event.UserContext.WithdrawalReferenceId,
+                    WithdrawalParamsSignature = @event.UserContext.WithdrawalParamsSignature
                 }
             };
 
