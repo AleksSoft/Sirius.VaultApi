@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using VaultApi.Common.ReadModels.Vaults;
 
 namespace VaultApi.Common.ReadModels.TransferValidationRequests
@@ -18,7 +16,6 @@ namespace VaultApi.Common.ReadModels.TransferValidationRequests
         public TransferValidationRequestRejectionReason? RejectionReason { get; set; }
         public string RejectionReasonString { get; set; }
         public long VaultId { get; set; }
-
         public VaultType VaultType { get; set; }
     }
 }
