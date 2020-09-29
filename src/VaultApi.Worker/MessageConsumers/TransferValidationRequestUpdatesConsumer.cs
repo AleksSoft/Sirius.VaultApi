@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Swisschain.Sirius.VaultAgent.MessagingContract.Transactions;
 using Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests;
 using VaultApi.Common.Persistence.Blockchains;
-using VaultApi.Common.Persistence.Transactions;
 using VaultApi.Common.Persistence.TransferValidationRequests;
 using VaultApi.Common.Persistence.Vaults;
-using VaultApi.Common.ReadModels.Transactions;
 using VaultApi.Common.ReadModels.TransferValidationRequests;
 using Asset = VaultApi.Common.ReadModels.TransferValidationRequests.Asset;
 using TransferDetails = VaultApi.Common.ReadModels.TransferValidationRequests.TransferDetails;
@@ -43,10 +40,10 @@ namespace VaultApi.Worker.MessageConsumers
             var @event = context.Message;
 
             var vault = await _vaultsRepository.GetByIdAsync(@event.VaultId);
-            //var blockchain = await _blockchainsRepository.GetByIdAsync(@event.BlockchainId);
+            var blockchain = await _blockchainsRepository.GetByIdAsync(@event.Details.BlockchainId);
 
-            //if (blockchain == null)
-            //    throw new Exception($"Blockchain not found. Id: {@event.BlockchainId}");
+            if (blockchain == null)
+                throw new Exception($"Blockchain not found. Id: {@event.Details.BlockchainId}");
 
             var transferValidationRequest = new TransferValidationRequest()
             {
@@ -55,6 +52,8 @@ namespace VaultApi.Worker.MessageConsumers
                 CustomerSignature = @event.CustomerSignature,
                 Details = new TransferDetails()
                 {
+                    ProtocolId = blockchain.Protocol.Code,
+                    NetworkType = blockchain.NetworkType,
                     UserContext = new UserContext()
                     {
                         WithdrawalParamsSignature = @event.Details.UserContext.WithdrawalParamsSignature,
@@ -109,7 +108,7 @@ namespace VaultApi.Worker.MessageConsumers
                 },
                 UpdatedAt = @event.UpdatedAt,
                 VaultId = @event.VaultId,
-                VaultType = vault.
+                VaultType = vault.Type,
             };
 
             await _transferValidationRequestRepository.UpdateAsync(transferValidationRequest);

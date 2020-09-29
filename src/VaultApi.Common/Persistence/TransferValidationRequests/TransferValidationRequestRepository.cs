@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using VaultApi.Common.ReadModels.TransferValidationRequests;
+using VaultApi.Common.ReadModels.Vaults;
+using Z.EntityFramework.Plus;
 
 namespace VaultApi.Common.Persistence.TransferValidationRequests
 {
@@ -82,14 +85,55 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
             if (transferValidationRequest.Sequence == 0)
             {
                 context.TransferValidationRequests.Add(transferValidationRequest);
+                await context.SaveChangesAsync();
             }
             else
             {
-                context.TransferValidationRequests.Update(transferValidationRequest);
-                context.Entry(transferValidationRequest).State = EntityState.Modified;
-            }
+                var affectedRowsCount = await context.TransferValidationRequests
+                    .Where(x => x.Id == transferValidationRequest.Id &&
+                                x.Sequence + 1 == transferValidationRequest.Sequence)
+                    .UpdateAsync(x => new TransferValidationRequest()
+                    {
+                        Id = transferValidationRequest.Id,
+                        Sequence = transferValidationRequest.Sequence,
+                        State = transferValidationRequest.State,
+                        UpdatedAt = transferValidationRequest.UpdatedAt,
+                        CreatedAt = transferValidationRequest.CreatedAt,
+                        SiriusSignature = transferValidationRequest.SiriusSignature,
+                        CustomerSignature = transferValidationRequest.CustomerSignature,
+                        Details = transferValidationRequest.Details,
+                        RejectionReason = transferValidationRequest.RejectionReason,
+                        RejectionReasonString = transferValidationRequest.RejectionReasonString,
+                        VaultId = transferValidationRequest.VaultId,
+                        VaultType = transferValidationRequest.VaultType,
+                    });
 
-            await context.SaveChangesAsync();
+                if (affectedRowsCount != 1)
+                {
+                    throw new InvalidOperationException($"No rows found to update the transferValidationRequest {transferValidationRequest.Id}");
+                }
+            }
+        }
+
+        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForSharedVaultAsync()
+        {
+            await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
+
+            return await context.TransferValidationRequests
+                .Where(entity => entity.State == TransferValidationRequestState.Created)
+                .Where(entity => entity.VaultType == VaultType.Private)
+                .ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForPrivateVaultAsync(long vaultId)
+        {
+            await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
+
+            return await context.TransferValidationRequests
+                .Where(entity => entity.State == TransferValidationRequestState.Created)
+                .Where(entity => entity.VaultType == VaultType.Private)
+                .Where(entity => entity.VaultId == vaultId)
+                .ToListAsync();
         }
     }
 }
