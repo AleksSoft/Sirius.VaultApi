@@ -94,6 +94,7 @@ message ClientContext{
     google.protobuf.StringValue withdrawal_reference_id = 4;
     google.protobuf.StringValue ip = 5;
     .swisschain.sirius.vaultApi.common.NullableTimestamp timestamp = 6;
+    google.protobuf.StringValue withdrawal_params_signature = 7;
 }
 
 // Confirm
