@@ -11,6 +11,7 @@ namespace VaultApi.Worker.MessageConsumers
             services.AddTransient<TransactionSigningRequestUpdatesConsumer>();
             services.AddTransient<VaultUpdatedConsumer>();
             services.AddTransient<WalletGenerationRequestUpdatedConsumer>();
+            services.AddTransient<TransferValidationRequestUpdatesConsumer>();
 
             return services;
         }
