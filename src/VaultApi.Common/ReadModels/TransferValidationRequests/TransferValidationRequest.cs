@@ -17,5 +17,7 @@ namespace VaultApi.Common.ReadModels.TransferValidationRequests
         public string RejectionReasonString { get; set; }
         public long VaultId { get; set; }
         public VaultType VaultType { get; set; }
+
+        public string TenantId { get; set; }
     }
 }

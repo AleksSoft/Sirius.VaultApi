@@ -11,8 +11,8 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
         Task<TransferValidationRequest> GetByIdOrDefaultAsync(long transferValidationRequestId);
         Task<IReadOnlyCollection<TransferValidationRequest>> GetAllAsync(long? cursor, int limit);
         Task UpdateAsync(TransferValidationRequest transferValidationRequest);
-        Task<IReadOnlyList<TransferValidationRequest>> GetPendingForSharedVaultAsync();
+        Task<IReadOnlyList<TransferValidationRequest>> GetPendingForSharedVaultAsync(string tenantId = null);
 
-        Task<IReadOnlyList<TransferValidationRequest>> GetPendingForPrivateVaultAsync(long vaultId);
+        Task<IReadOnlyList<TransferValidationRequest>> GetPendingForPrivateVaultAsync(long vaultId, string tenantId = null);
     }
 }

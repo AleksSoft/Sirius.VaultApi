@@ -115,25 +115,37 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
             }
         }
 
-        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForSharedVaultAsync()
+        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForSharedVaultAsync(string tenantId = null)
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            return await context.TransferValidationRequests
+            var query = context.TransferValidationRequests
                 .Where(entity => entity.State == TransferValidationRequestState.Created)
-                .Where(entity => entity.VaultType == VaultType.Private)
-                .ToListAsync();
+                .Where(entity => entity.VaultType == VaultType.Private);
+
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                query = query.Where(x => x.TenantId == tenantId);
+            }
+
+            return await query.ToListAsync();
         }
 
-        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForPrivateVaultAsync(long vaultId)
+        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForPrivateVaultAsync(long vaultId, string tenantId = null)
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            return await context.TransferValidationRequests
+            var query = context.TransferValidationRequests
                 .Where(entity => entity.State == TransferValidationRequestState.Created)
                 .Where(entity => entity.VaultType == VaultType.Private)
-                .Where(entity => entity.VaultId == vaultId)
-                .ToListAsync();
+                .Where(entity => entity.VaultId == vaultId);
+
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                query = query.Where(x => x.TenantId == tenantId);
+            }
+
+            return await query.ToListAsync();
         }
     }
 }

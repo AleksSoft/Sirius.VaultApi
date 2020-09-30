@@ -163,6 +163,18 @@ namespace VaultApi.Common.Persistence
                 .ToTable("transfer_validation_requests")
                 .HasKey(x => x.Id);
 
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.TenantId);
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.VaultId);
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.VaultType);
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.State);
+
             modelBuilder.Entity<TransferValidationRequest>().Property(e => e.Details).HasConversion(
                 v => JsonConvert.SerializeObject(v,
                     JsonSerializingSettings),

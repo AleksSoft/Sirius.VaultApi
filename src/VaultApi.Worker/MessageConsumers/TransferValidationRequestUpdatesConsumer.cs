@@ -109,6 +109,7 @@ namespace VaultApi.Worker.MessageConsumers
                 UpdatedAt = @event.UpdatedAt,
                 VaultId = @event.VaultId,
                 VaultType = vault.Type,
+                TenantId = @event.TenantId
             };
 
             await _transferValidationRequestRepository.UpdateAsync(transferValidationRequest);

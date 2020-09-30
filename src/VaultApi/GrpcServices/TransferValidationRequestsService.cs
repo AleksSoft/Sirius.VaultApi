@@ -6,14 +6,19 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.EntityFrameworkCore.Internal;
 using Swisschain.Sirius.Sdk.Primitives;
-using Swisschain.Sirius.VaultAgent.ApiClient;
+using Swisschain.Sirius.VaultApi.ApiContract;
 using Swisschain.Sirius.VaultApi.ApiContract.Common;
 using Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests;
 using VaultApi.Common.Persistence.TransferValidationRequests;
 using VaultApi.Common.Persistence.Vaults;
+using VaultApi.Common.ReadModels.TransferValidationRequests;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
+using Asset = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.Asset;
+using DestinationAddress = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.DestinationAddress;
 using NetworkType = Swisschain.Sirius.Sdk.Primitives.NetworkType;
+using SourceAddress = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.SourceAddress;
+using TransferDetails = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.TransferDetails;
 
 namespace VaultApi.GrpcServices
 {
@@ -21,12 +26,12 @@ namespace VaultApi.GrpcServices
     {
         private readonly ITransferValidationRequestRepository _transferValidationRequestRepository;
         private readonly IVaultsRepository _vaultsRepository;
-        private readonly IVaultAgentClient _vaultAgentClient;
+        private readonly Swisschain.Sirius.VaultAgent.ApiClient.IVaultAgentClient _vaultAgentClient;
 
         public TransferValidationRequestsService(
             ITransferValidationRequestRepository transferValidationRequestRepository,
             IVaultsRepository vaultsRepository,
-            IVaultAgentClient vaultAgentClient)
+            Swisschain.Sirius.VaultAgent.ApiClient.IVaultAgentClient vaultAgentClient)
         {
             _transferValidationRequestRepository = transferValidationRequestRepository;
             _vaultsRepository = vaultsRepository;
@@ -67,14 +72,14 @@ namespace VaultApi.GrpcServices
             };
 
             if (EnumerableExtensions.Any(requests))
-                response.Response.Requests.AddRange(requests.Select(x => new TransferValidationRequest()
+                response.Response.Requests.AddRange(requests.Select(x => new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.TransferValidationRequest()
                 {
                     CreatedAt = Timestamp.FromDateTimeOffset(x.CreatedAt),
                     CustomerSignature = x.CustomerSignature,
-                    Details = new TransferDetails()
+                    Details = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.TransferDetails()
                     {
                         Amount = x.Details.Amount,
-                        Asset = new Asset()
+                        Asset = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.Asset()
                         {
                             Address = x.Details.Asset.Address,
                             Id = x.Details.Asset.Id,
@@ -100,7 +105,7 @@ namespace VaultApi.GrpcServices
                             Ip = x.Details.UserContext.PassClientIp,
                             UserId = x.Details.UserContext.UserId
                         },
-                        DestinationAddress = new DestinationAddress()
+                        DestinationAddress = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.DestinationAddress()
                         {
                             Name = x.Details.DestinationAddress.Name,
                             Group = x.Details.DestinationAddress.Group,
@@ -120,7 +125,7 @@ namespace VaultApi.GrpcServices
                         },
                         FeeLimit = x.Details.FeeLimit,
                         OperationId = x.Details.OperationId,
-                        SourceAddress = new SourceAddress()
+                        SourceAddress = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.SourceAddress()
                         {
                             Address = x.Details.SourceAddress.Address,
                             Group = x.Details.SourceAddress.Group,
@@ -129,7 +134,8 @@ namespace VaultApi.GrpcServices
                     },
                     Id = x.Id,
                     SiriusSignature = x.SiriusSignature,
-                    UpdatedAt = Timestamp.FromDateTimeOffset(x.UpdatedAt)
+                    UpdatedAt = Timestamp.FromDateTimeOffset(x.UpdatedAt),
+                    TenantId = x.TenantId
                 }).ToArray());
 
             return response;
