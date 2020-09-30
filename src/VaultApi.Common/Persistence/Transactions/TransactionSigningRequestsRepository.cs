@@ -50,7 +50,7 @@ namespace VaultApi.Common.Persistence.Transactions
                 .Where(entity => entity.VaultType == VaultType.Private)
                 .Where(entity => entity.VaultId == vaultId);
 
-            if (tenantId != null)
+            if (!string.IsNullOrEmpty(tenantId))
             {
                 query = query.Where(x => tenantId == x.TenantId);
             }
