@@ -99,7 +99,7 @@ namespace VaultApi.Worker.MessageConsumers
                     WithdrawalReferenceId = @event.UserContext.WithdrawalReferenceId,
                     WithdrawalParamsSignature = @event.UserContext.WithdrawalParamsSignature
                 },
-                Group = ""
+                Group = @event.SourceGroup
             };
 
             await _transactionSigningRequestsRepository.InsertOrUpdateAsync(transactionSigningRequest);
