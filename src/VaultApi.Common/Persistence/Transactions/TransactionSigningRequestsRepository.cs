@@ -86,6 +86,7 @@ namespace VaultApi.Common.Persistence.Transactions
                     CoinsToSpend = transactionSigningRequest.CoinsToSpend,
                     CreatedAt = transactionSigningRequest.CreatedAt,
                     UpdatedAt = transactionSigningRequest.UpdatedAt,
+                    Group = transactionSigningRequest.Group
                 });
 
             if (affectedRowsCount == 0)

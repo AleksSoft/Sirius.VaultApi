@@ -14,6 +14,7 @@ using VaultApi.Common.Persistence.Vaults;
 using VaultApi.Common.ReadModels.TransferValidationRequests;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
+using VaultApi.Utils;
 using Asset = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.Asset;
 using DestinationAddress = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.DestinationAddress;
 using NetworkType = Swisschain.Sirius.Sdk.Primitives.NetworkType;
@@ -145,13 +146,34 @@ namespace VaultApi.GrpcServices
             ConfirmTransferValidationRequestRequest request,
             ServerCallContext context)
         {
+            var vaultType = context.GetVaultType();
+
+            if (!vaultType.HasValue)
+            {
+                return GetErrorResponse(
+                    ConfirmTransferValidationRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    "Vault type required");
+            }
+
+            var vaultId = context.GetVaultId();
+
+            if (!vaultId.HasValue && vaultType == VaultType.Private)
+            {
+                return GetErrorResponse(
+                    ConfirmTransferValidationRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    "Private vault id required");
+            }
+
+            var transferValidationRequest = await _transferValidationRequestRepository
+                .GetByIdAsync(request.TransferValidationRequestId);
+
             var result = await _vaultAgentClient.TransferValidationRequests.ConfirmAsync(
                 new Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.ConfirmTransferValidationRequestRequest()
                 {
-                    TransferValidationRequestId = request.TransferValidationRequestId,
+                    TransferValidationRequestId = transferValidationRequest.Id,
                     HostProcessId = request.HostProcessId,
                     PolicyResult = request.PolicyResult,
-                    RequestId = request.RequestId,
+                    RequestId = StringUtils.FormatRequestId(transferValidationRequest.TenantId, request.RequestId),
                     Signature = request.Signature
                 });
 
@@ -170,6 +192,44 @@ namespace VaultApi.GrpcServices
             RejectTransferValidationRequestRequest request,
             ServerCallContext context)
         {
+            var vaultType = context.GetVaultType();
+
+            if (!vaultType.HasValue)
+            {
+                return GetErrorResponse(
+                    RejectTransferValidationRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    "Vault type required");
+            }
+
+            var vaultId = context.GetVaultId();
+
+            if (!vaultId.HasValue && vaultType == VaultType.Private)
+            {
+                return GetErrorResponse(
+                    RejectTransferValidationRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    "Private vault id required");
+            }
+
+            var transferValidationRequest = await _transferValidationRequestRepository
+                .GetByIdAsync(request.TransferValidationRequestId);
+
+            var result = await _vaultAgentClient.TransferValidationRequests.RejectAsync(
+                new Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.RejectTransferValidationRequestRequest()
+                {
+                    TransferValidationRequestId = transferValidationRequest.Id,
+                    HostProcessId = request.HostProcessId,
+                    PolicyResult = request.PolicyResult,
+                    RequestId = StringUtils.FormatRequestId(transferValidationRequest.TenantId, request.RequestId),
+                    Signature = request.Signature
+                });
+
+            if (result.BodyCase == 
+                Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.RejectTransferValidationRequestResponse.BodyOneofCase.Error)
+            {
+                return GetErrorResponse(RejectTransferValidationRequestErrorResponseBody.Types.ErrorCode.Unknown, 
+                    result.Error.ErrorMessage);
+            }
+
             return new RejectTransferValidationRequestResponse
             {
                 Response = new RejectTransferValidationRequestResponseBody()
