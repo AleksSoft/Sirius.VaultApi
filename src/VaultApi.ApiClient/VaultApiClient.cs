@@ -2,9 +2,8 @@
 using Grpc.Core.Interceptors;
 using Grpc.Net.Client;
 using Swisschain.Sirius.VaultApi.ApiContract.Monitoring;
-using Swisschain.Sirius.VaultApi.ApiContract.TransactionApprovalConfirmations;
-using Swisschain.Sirius.VaultApi.ApiContract.TransactionApprovalRequests;
-using Swisschain.Sirius.VaultApi.ApiContract.Transactions;
+using Swisschain.Sirius.VaultApi.ApiContract.TransferSigninRequests;
+using Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests;
 using Swisschain.Sirius.VaultApi.ApiContract.Wallets;
 
 namespace Swisschain.Sirius.VaultApi.ApiClient
@@ -23,19 +22,16 @@ namespace Swisschain.Sirius.VaultApi.ApiClient
                 });
 
             Monitoring = new Monitoring.MonitoringClient(interceptor);
-            TransactionApprovalConfirmations = new TransactionApprovalConfirmations.TransactionApprovalConfirmationsClient(interceptor);
-            TransactionApprovalRequests = new TransactionApprovalRequests.TransactionApprovalRequestsClient(interceptor);
-            Transactions = new Transactions.TransactionsClient(interceptor);
+            TransferSigningRequests = new TransferSigningRequests.TransferSigningRequestsClient(interceptor);
+            TransferValidationRequests = new TransferValidationRequests.TransferValidationRequestsClient(interceptor);
             Wallets = new Wallets.WalletsClient(interceptor);
         }
 
         public Monitoring.MonitoringClient Monitoring { get; }
 
-        public TransactionApprovalConfirmations.TransactionApprovalConfirmationsClient TransactionApprovalConfirmations { get; }
+        public TransferSigningRequests.TransferSigningRequestsClient TransferSigningRequests { get; }
 
-        public TransactionApprovalRequests.TransactionApprovalRequestsClient TransactionApprovalRequests { get; }
-
-        public Transactions.TransactionsClient Transactions { get; }
+        public TransferValidationRequests.TransferValidationRequestsClient TransferValidationRequests { get; }
 
         public Wallets.WalletsClient Wallets { get; }
     }

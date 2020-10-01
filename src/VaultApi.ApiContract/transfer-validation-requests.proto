@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests";
+
+package swisschain.sirius.vaultApi.transferValidationRequests;
+
+import "common.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+service TransferValidationRequests {
+    rpc Get (GetTransferValidationRequestsRequest) returns (GetTransferValidationRequestsResponse);
+    rpc Confirm (ConfirmTransferValidationRequestRequest) returns (ConfirmTransferValidationRequestResponse);
+    rpc Reject (RejectTransferValidationRequestRequest) returns (RejectTransferValidationRequestResponse);
+}
+
+// Get
+
+message GetTransferValidationRequestsRequest {
+}
+
+message GetTransferValidationRequestsResponse {
+    oneof body {
+        GetTransferValidationRequestsResponseBody response = 1;
+        GetTransferValidationRequestsErrorResponseBody error = 2;
+    }
+}
+
+message GetTransferValidationRequestsResponseBody {
+    repeated TransferValidationRequest requests = 1;
+}
+
+message GetTransferValidationRequestsErrorResponseBody {
+
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
+
+    ErrorCode error_code = 1;
+    string error_message = 2;
+}
+
+message TransferValidationRequest {
+    int64 id = 1;
+    TransferDetails details = 2;
+    string customer_signature = 3;
+    string sirius_signature = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
+}
+
+message TransferDetails {
+    int64 operation_id = 1;
+    Blockchain blockchain = 2;
+    Asset asset = 3;
+    SourceAddress source_address = 4;
+    DestinationAddress destination_address = 5;
+    .swisschain.sirius.vaultApi.common.BigDecimal amount = 6;
+    .swisschain.sirius.vaultApi.common.BigDecimal fee_limit = 7;
+    ClientContext client_context = 8;
+}
+
+message Blockchain {
+    string id = 1;
+    string protocol_id = 2;
+    .swisschain.sirius.vaultApi.common.NetworkType network_type = 3;
+}
+
+message Asset {
+    int64 id = 1;
+    string symbol = 2;
+    google.protobuf.StringValue address = 3;
+}
+
+message SourceAddress {
+    string address = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue group = 3;
+}
+
+message DestinationAddress {
+    string address = 1;
+    google.protobuf.StringValue name = 2;
+    google.protobuf.StringValue group = 3;
+    google.protobuf.StringValue tag = 4;
+    .swisschain.sirius.vaultApi.common.NullableTagType tag_type = 5;
+}
+
+message ClientContext{
+    google.protobuf.StringValue user_id = 1;
+    google.protobuf.StringValue api_key_id = 2;
+    google.protobuf.StringValue account_reference_id = 3;
+    google.protobuf.StringValue withdrawal_reference_id = 4;
+    google.protobuf.StringValue ip = 5;
+    .swisschain.sirius.vaultApi.common.NullableTimestamp timestamp = 6;
+}
+
+// Confirm
+
+message ConfirmTransferValidationRequestRequest {
+    string request_id = 1;
+    int64 transfer_validation_request_id = 2;
+    string policy_result = 3;
+    string signature = 4;
+    string host_process_id = 5;
+}
+
+message ConfirmTransferValidationRequestResponseBody {
+}
+
+message ConfirmTransferValidationRequestErrorResponseBody {
+
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
+
+    ErrorCode error_code = 1;
+    string error_message = 2;
+}
+
+message ConfirmTransferValidationRequestResponse {
+    oneof body {
+        ConfirmTransferValidationRequestResponseBody response = 1;
+        ConfirmTransferValidationRequestErrorResponseBody error = 2;
+    }
+}
+
+// Reject
+
+message RejectTransferValidationRequestRequest {
+    string request_id = 1;
+    int64 transfer_validation_request_id = 2;
+    TransferValidationRequestRejectionReason reason = 3;
+    string reason_message = 4;
+    string policy_result = 5;
+    string signature = 6;
+    string host_process_id = 7;
+}
+
+enum TransferValidationRequestRejectionReason {
+    OTHER = 0;
+    REJECTED_POLICY = 1;
+}
+
+message RejectTransferValidationRequestResponseBody {
+}
+
+message RejectTransferValidationRequestErrorResponseBody {
+
+    enum ErrorCode {
+        UNKNOWN = 0;
+        INVALID_PARAMETERS = 1;
+    }
+
+    ErrorCode error_code = 1;
+    string error_message = 2;
+}
+
+message RejectTransferValidationRequestResponse {
+    oneof body {
+        RejectTransferValidationRequestResponseBody response = 1;
+        RejectTransferValidationRequestErrorResponseBody error = 2;
+    }
+}

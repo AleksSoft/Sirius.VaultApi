@@ -1,7 +1,6 @@
 ﻿using Swisschain.Sirius.VaultApi.ApiContract.Monitoring;
-using Swisschain.Sirius.VaultApi.ApiContract.TransactionApprovalConfirmations;
-using Swisschain.Sirius.VaultApi.ApiContract.TransactionApprovalRequests;
-using Swisschain.Sirius.VaultApi.ApiContract.Transactions;
+using Swisschain.Sirius.VaultApi.ApiContract.TransferSigninRequests;
+using Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests;
 using Swisschain.Sirius.VaultApi.ApiContract.Wallets;
 
 namespace Swisschain.Sirius.VaultApi.ApiClient
@@ -10,11 +9,9 @@ namespace Swisschain.Sirius.VaultApi.ApiClient
     {
         Monitoring.MonitoringClient Monitoring { get; }
 
-        TransactionApprovalConfirmations.TransactionApprovalConfirmationsClient TransactionApprovalConfirmations { get; }
+        TransferSigningRequests.TransferSigningRequestsClient TransferSigningRequests { get; }
 
-        TransactionApprovalRequests.TransactionApprovalRequestsClient TransactionApprovalRequests { get; }
-
-        Transactions.TransactionsClient Transactions { get; }
+        TransferValidationRequests.TransferValidationRequestsClient TransferValidationRequests { get; }
 
         Wallets.WalletsClient Wallets { get; }
     }

@@ -7,7 +7,7 @@ using Grpc.Core;
 using Microsoft.AspNetCore.Authorization;
 using Swisschain.Sirius.VaultAgent.ApiClient;
 using Swisschain.Sirius.VaultAgent.ApiContract.Transactions;
-using Swisschain.Sirius.VaultApi.ApiContract.Transactions;
+using Swisschain.Sirius.VaultApi.ApiContract.TransferSigninRequests;
 using VaultApi.Common.Persistence.Transactions;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
@@ -16,12 +16,12 @@ using VaultApi.Utils;
 namespace VaultApi.GrpcServices
 {
     [Authorize]
-    public class TransactionsService : Swisschain.Sirius.VaultApi.ApiContract.Transactions.Transactions.TransactionsBase
+    public class TransferSigningRequestsService : TransferSigningRequests.TransferSigningRequestsBase
     {
         private readonly ITransactionSigningRequestsRepository _transactionSigningRequestsRepository;
         private readonly IVaultAgentClient _vaultAgentClient;
 
-        public TransactionsService(
+        public TransferSigningRequestsService(
             ITransactionSigningRequestsRepository transactionSigningRequestsRepository,
             IVaultAgentClient vaultAgentClient)
         {
@@ -29,15 +29,14 @@ namespace VaultApi.GrpcServices
             _vaultAgentClient = vaultAgentClient;
         }
 
-        public override async Task<GetTransactionSigningRequestResponse> Get(
-            GetTransactionSigningRequestRequest request,
+        public override async Task<GetTransferSigningRequestsResponse> Get(GetTransferSigningRequestsRequest request,
             ServerCallContext context)
         {
             var vaultType = context.GetVaultType();
 
             if (!vaultType.HasValue)
             {
-                return GetErrorResponse(GetTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                return GetErrorResponse(GetTransferSigningRequestsErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Vault type required");
             }
 
@@ -45,7 +44,7 @@ namespace VaultApi.GrpcServices
 
             if (!vaultId.HasValue && vaultType == VaultType.Private)
             {
-                return GetErrorResponse(GetTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                return GetErrorResponse(GetTransferSigningRequestsErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Private vault id required");
             }
 
@@ -53,11 +52,11 @@ namespace VaultApi.GrpcServices
                 ? await _transactionSigningRequestsRepository.GetPendingForSharedVaultAsync()
                 : await _transactionSigningRequestsRepository.GetPendingForPrivateVaultAsync(vaultId.Value);
 
-            var response = new GetTransactionSigningRequestResponseBody();
+            var response = new GetTransferSigningRequestsResponseBody();
 
             response.Requests.AddRange(pendingTransactionSigningRequests
                 .Select(transactionSigningRequest =>
-                    new Swisschain.Sirius.VaultApi.ApiContract.Transactions.TransactionSigningRequest
+                    new TransferSigningRequest
                     {
                         Id = transactionSigningRequest.Id,
                         BlockchainId = transactionSigningRequest.BlockchainId,
@@ -91,13 +90,14 @@ namespace VaultApi.GrpcServices
                         {
                             transactionSigningRequest.CoinsToSpend
                                 .Select(coinToSpend =>
-                                    new Swisschain.Sirius.VaultApi.ApiContract.Transactions.CoinToSpend
+                                    new Swisschain.Sirius.VaultApi.ApiContract.TransferSigninRequests.CoinToSpend
                                     {
-                                        Id = new Swisschain.Sirius.VaultApi.ApiContract.Transactions.CoinId
-                                        {
-                                            Number = coinToSpend.Id.Number,
-                                            TransactionId = coinToSpend.Id.TransactionId
-                                        },
+                                        Id =
+                                            new Swisschain.Sirius.VaultApi.ApiContract.TransferSigninRequests.CoinId
+                                            {
+                                                Number = coinToSpend.Id.Number,
+                                                TransactionId = coinToSpend.Id.TransactionId
+                                            },
                                         Asset = new BlockchainAsset
                                         {
                                             Id = new BlockchainAssetId
@@ -112,15 +112,17 @@ namespace VaultApi.GrpcServices
                                         Address = coinToSpend.Address
                                     })
                         },
+                        PolicyResult = "PolicyResult", // TODO:
+                        GuardianSignature = "GuardianSignature", // TODO:
                         CreatedAt = Timestamp.FromDateTime(transactionSigningRequest.CreatedAt.UtcDateTime),
                         UpdatedAt = Timestamp.FromDateTime(transactionSigningRequest.UpdatedAt.UtcDateTime)
                     }));
 
-            return new GetTransactionSigningRequestResponse {Response = response};
+            return new GetTransferSigningRequestsResponse {Response = response};
         }
 
-        public override async Task<ConfirmTransactionSigningRequestResponse> Confirm(
-            ConfirmTransactionSigningRequestRequest request,
+        public override async Task<ConfirmTransferSigningRequestResponse> Confirm(
+            ConfirmTransferSigningRequestRequest request,
             ServerCallContext context)
         {
             var vaultType = context.GetVaultType();
@@ -128,7 +130,7 @@ namespace VaultApi.GrpcServices
             if (!vaultType.HasValue)
             {
                 return GetErrorResponse(
-                    ConfirmTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    ConfirmTransferSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Vault type required");
             }
 
@@ -137,37 +139,39 @@ namespace VaultApi.GrpcServices
             if (!vaultId.HasValue && vaultType == VaultType.Private)
             {
                 return GetErrorResponse(
-                    ConfirmTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    ConfirmTransferSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Private vault id required");
             }
 
             var transactionSigningRequest = await _transactionSigningRequestsRepository
-                .GetByIdAsync(request.TransactionSigningRequestId);
+                .GetByIdAsync(request.TransferSigningRequestId);
 
             var response = await _vaultAgentClient.Transactions.ConfirmAsync(new SignTransactionConfirm
             {
                 RequestId = StringUtils.FormatRequestId(transactionSigningRequest.TenantId, request.RequestId),
                 TenantId = transactionSigningRequest.TenantId,
-                TransactionSigningRequestId = request.TransactionSigningRequestId,
+                TransactionSigningRequestId = request.TransferSigningRequestId,
                 SignedTransaction = request.SignedTransaction,
-                TransactionId = request.TransactionId
+                TransactionId = request.TransactionId,
+                // TODO: VaultSignature = request.VaultSignature, 
+                // TODO: HostProcessId = request.HostProcessId
             });
 
             if (response.BodyCase == SignTransactionConfirmResponse.BodyOneofCase.Error)
             {
                 return GetErrorResponse(
-                    ConfirmTransactionSigningRequestErrorResponseBody.Types.ErrorCode.Unknown,
+                    ConfirmTransferSigningRequestErrorResponseBody.Types.ErrorCode.Unknown,
                     response.Error.ErrorMessage);
             }
 
-            return new ConfirmTransactionSigningRequestResponse
+            return new ConfirmTransferSigningRequestResponse
             {
-                Response = new ConfirmTransactionSigningRequestResponseBody()
+                Response = new ConfirmTransferSigningRequestResponseBody()
             };
         }
 
-        public override async Task<RejectTransactionSigningRequestResponse> Reject(
-            RejectTransactionSigningRequestRequest request,
+        public override async Task<RejectTransferSigningRequestResponse> Reject(
+            RejectTransferSigningRequestRequest request,
             ServerCallContext context)
         {
             var vaultType = context.GetVaultType();
@@ -175,7 +179,7 @@ namespace VaultApi.GrpcServices
             if (!vaultType.HasValue)
             {
                 return GetErrorResponse(
-                    RejectTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    RejectTransferSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Vault type required");
             }
 
@@ -184,61 +188,53 @@ namespace VaultApi.GrpcServices
             if (!vaultId.HasValue && vaultType == VaultType.Private)
             {
                 return GetErrorResponse(
-                    RejectTransactionSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                    RejectTransferSigningRequestErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Private vault id required");
             }
 
             var transactionSigningRequest = await _transactionSigningRequestsRepository
-                .GetByIdAsync(request.TransactionSigningRequestId);
+                .GetByIdAsync(request.TransferSigningRequestId);
 
             var response = await _vaultAgentClient.Transactions.RejectAsync(new SignTransactionReject
             {
                 RequestId = StringUtils.FormatRequestId(transactionSigningRequest.TenantId, request.RequestId),
                 TenantId = transactionSigningRequest.TenantId,
-                TransactionSigningRequestId = request.TransactionSigningRequestId,
+                TransactionSigningRequestId = request.TransferSigningRequestId,
                 Reason = request.Reason switch
                 {
-                    Swisschain.Sirius.VaultApi.ApiContract.Transactions.TransactionSigningRequestRejectionReason
-                        .UnknownBlockchain =>
-                    Swisschain.Sirius.VaultAgent.ApiContract.Transactions.TransactionSigningRequestRejectionReason
+                    TransferSigningRequestRejectionReason.UnknownBlockchain => TransactionSigningRequestRejectionReason
                         .UnknownBlockchain,
-                    Swisschain.Sirius.VaultApi.ApiContract.Transactions.TransactionSigningRequestRejectionReason
-                        .UnwantedTransaction =>
-                    Swisschain.Sirius.VaultAgent.ApiContract.Transactions.TransactionSigningRequestRejectionReason
-                        .UnwantedTransaction,
-                    Swisschain.Sirius.VaultApi.ApiContract.Transactions.TransactionSigningRequestRejectionReason
-                        .Other =>
-                    Swisschain.Sirius.VaultAgent.ApiContract.Transactions.TransactionSigningRequestRejectionReason
+                    TransferSigningRequestRejectionReason.InvalidSignature => TransactionSigningRequestRejectionReason
+                        .UnwantedTransaction, // TODO:
+                    TransferSigningRequestRejectionReason.Other => TransactionSigningRequestRejectionReason
                         .Other,
                     _ => throw new InvalidEnumArgumentException(
                         nameof(request.Reason),
                         (int) request.Reason,
-                        typeof(Swisschain.Sirius.VaultApi.ApiContract.Transactions.
-                            TransactionSigningRequestRejectionReason))
+                        typeof(TransferSigningRequestRejectionReason))
                 },
-                ReasonMessage = request.ReasonMessage
+                ReasonMessage = request.ReasonMessage,
+                // TODO: VaultSignature = request.VaultSignature, 
+                // TODO: HostProcessId = request.HostProcessId
             });
 
             if (response.BodyCase == SignTransactionRejectResponse.BodyOneofCase.Error)
             {
                 return GetErrorResponse(
-                    RejectTransactionSigningRequestErrorResponseBody.Types.ErrorCode.Unknown,
+                    RejectTransferSigningRequestErrorResponseBody.Types.ErrorCode.Unknown,
                     response.Error.ErrorMessage);
             }
 
-            return new RejectTransactionSigningRequestResponse
-            {
-                Response = new RejectTransactionSigningRequestResponseBody()
-            };
+            return new RejectTransferSigningRequestResponse {Response = new RejectTransferSigningRequestResponseBody()};
         }
 
-        private static GetTransactionSigningRequestResponse GetErrorResponse(
-            GetTransactionSigningRequestErrorResponseBody.Types.ErrorCode errorCode,
+        private static GetTransferSigningRequestsResponse GetErrorResponse(
+            GetTransferSigningRequestsErrorResponseBody.Types.ErrorCode errorCode,
             string message)
         {
-            return new GetTransactionSigningRequestResponse
+            return new GetTransferSigningRequestsResponse
             {
-                Error = new GetTransactionSigningRequestErrorResponseBody
+                Error = new GetTransferSigningRequestsErrorResponseBody
                 {
                     ErrorCode = errorCode,
                     ErrorMessage = message
@@ -246,13 +242,13 @@ namespace VaultApi.GrpcServices
             };
         }
 
-        private static ConfirmTransactionSigningRequestResponse GetErrorResponse(
-            ConfirmTransactionSigningRequestErrorResponseBody.Types.ErrorCode errorCode,
+        private static ConfirmTransferSigningRequestResponse GetErrorResponse(
+            ConfirmTransferSigningRequestErrorResponseBody.Types.ErrorCode errorCode,
             string message)
         {
-            return new ConfirmTransactionSigningRequestResponse
+            return new ConfirmTransferSigningRequestResponse
             {
-                Error = new ConfirmTransactionSigningRequestErrorResponseBody
+                Error = new ConfirmTransferSigningRequestErrorResponseBody
                 {
                     ErrorCode = errorCode,
                     ErrorMessage = message
@@ -260,13 +256,13 @@ namespace VaultApi.GrpcServices
             };
         }
 
-        private static RejectTransactionSigningRequestResponse GetErrorResponse(
-            RejectTransactionSigningRequestErrorResponseBody.Types.ErrorCode errorCode,
+        private static RejectTransferSigningRequestResponse GetErrorResponse(
+            RejectTransferSigningRequestErrorResponseBody.Types.ErrorCode errorCode,
             string message)
         {
-            return new RejectTransactionSigningRequestResponse
+            return new RejectTransferSigningRequestResponse
             {
-                Error = new RejectTransactionSigningRequestErrorResponseBody
+                Error = new RejectTransferSigningRequestErrorResponseBody
                 {
                     ErrorCode = errorCode,
                     ErrorMessage = message
