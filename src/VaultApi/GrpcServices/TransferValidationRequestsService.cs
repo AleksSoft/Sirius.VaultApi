@@ -4,22 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Microsoft.EntityFrameworkCore.Internal;
 using Swisschain.Sirius.Sdk.Primitives;
-using Swisschain.Sirius.VaultApi.ApiContract;
 using Swisschain.Sirius.VaultApi.ApiContract.Common;
 using Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests;
 using VaultApi.Common.Persistence.TransferValidationRequests;
 using VaultApi.Common.Persistence.Vaults;
-using VaultApi.Common.ReadModels.TransferValidationRequests;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
 using VaultApi.Utils;
-using Asset = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.Asset;
-using DestinationAddress = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.DestinationAddress;
 using NetworkType = Swisschain.Sirius.Sdk.Primitives.NetworkType;
-using SourceAddress = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.SourceAddress;
-using TransferDetails = Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.TransferDetails;
 
 namespace VaultApi.GrpcServices
 {

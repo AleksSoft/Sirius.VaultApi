@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Swisschain.Sirius.Sdk.Primitives;
 
 namespace VaultApi.Common.ReadModels.Transactions
