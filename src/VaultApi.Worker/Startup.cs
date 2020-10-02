@@ -56,6 +56,14 @@ namespace VaultApi.Worker
                             });
 
                         factoryConfigurator.ReceiveEndpoint(
+                            "sirius-vault-api-transfer-validation-request-updates",
+                            endpoint =>
+                            {
+                                endpoint.Consumer(provider.Container
+                                    .GetRequiredService<TransferValidationRequestUpdatesConsumer>);
+                            });
+
+                        factoryConfigurator.ReceiveEndpoint(
                             "sirius-vault-api-key-keepers-updates",
                             endpoint =>
                             {

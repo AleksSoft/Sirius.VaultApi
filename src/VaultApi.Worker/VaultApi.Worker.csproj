@@ -13,7 +13,7 @@
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="6.3.2" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="6.3.2" />
     <PackageReference Include="Swisschain.Sdk.Server" Version="6.3.1" />
-    <PackageReference Include="Swisschain.Sirius.VaultAgent.MessagingContract" Version="2.7.0" />
+    <PackageReference Include="Swisschain.Sirius.VaultAgent.MessagingContract" Version="2.8.0" />
     <PackageReference Include="Swisschain.Sirius.Integrations.MessagingContract" Version="8.1.0" />
   </ItemGroup>
 

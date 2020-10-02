@@ -54,6 +54,8 @@ message TransferSigningRequest {
     string guardian_signature = 10;
     google.protobuf.Timestamp created_at = 11;
     google.protobuf.Timestamp updated_at = 12;
+    string group = 13;
+    string tenant_id = 14;
 }
 
 enum DoubleSpendingProtectionType {

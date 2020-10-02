@@ -11,6 +11,8 @@ namespace VaultApi.Common.ReadModels.Transactions
 
         public string TenantId { get; set; }
 
+        public string Group { get; set; }
+
         public long VaultId { get; set; }
 
         public VaultType VaultType { get; set; }

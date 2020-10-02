@@ -25,25 +25,37 @@ namespace VaultApi.Common.Persistence.Transactions
             return await context.TransactionSigningRequests.FindAsync(transactionSigningRequestId);
         }
 
-        public async Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForSharedVaultAsync()
+        public async Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForSharedVaultAsync(string tenantId = null)
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            return await context.TransactionSigningRequests
+            var query = context.TransactionSigningRequests
                 .Where(entity => entity.State == TransactionSigningRequestState.Pending)
-                .Where(entity => entity.VaultType == VaultType.Shared)
-                .ToListAsync();
+                .Where(entity => entity.VaultType == VaultType.Shared);
+
+            if (tenantId != null)
+            {
+                query = query.Where(x => tenantId == x.TenantId);
+            }
+
+            return await query.ToListAsync();
         }
 
-        public async Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForPrivateVaultAsync(long vaultId)
+        public async Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForPrivateVaultAsync(long vaultId, string tenantId = null)
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
-            return await context.TransactionSigningRequests
+            var query =context.TransactionSigningRequests
                 .Where(entity => entity.State == TransactionSigningRequestState.Pending)
                 .Where(entity => entity.VaultType == VaultType.Private)
-                .Where(entity => entity.VaultId == vaultId)
-                .ToListAsync();
+                .Where(entity => entity.VaultId == vaultId);
+
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                query = query.Where(x => tenantId == x.TenantId);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task InsertOrUpdateAsync(TransactionSigningRequest transactionSigningRequest)
@@ -74,6 +86,7 @@ namespace VaultApi.Common.Persistence.Transactions
                     CoinsToSpend = transactionSigningRequest.CoinsToSpend,
                     CreatedAt = transactionSigningRequest.CreatedAt,
                     UpdatedAt = transactionSigningRequest.UpdatedAt,
+                    Group = transactionSigningRequest.Group
                 });
 
             if (affectedRowsCount == 0)

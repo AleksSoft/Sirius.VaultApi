@@ -2,15 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VaultApi.Common.Persistence;
 
 namespace VaultApi.Common.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20200930100550_TransferValidationRequests")]
+    partial class TransferValidationRequests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,9 +139,6 @@ namespace VaultApi.Common.Migrations
                     b.Property<int>("DoubleSpendingProtectionType")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Group")
-                        .HasColumnType("text");
-
                     b.Property<int>("NetworkType")
                         .HasColumnType("integer");
 
@@ -210,7 +210,7 @@ namespace VaultApi.Common.Migrations
                     b.Property<int?>("RejectionReason")
                         .HasColumnType("integer");
 
-                    b.Property<string>("RejectionReasonMessage")
+                    b.Property<string>("RejectionReasonString")
                         .HasColumnType("text");
 
                     b.Property<long>("Sequence")

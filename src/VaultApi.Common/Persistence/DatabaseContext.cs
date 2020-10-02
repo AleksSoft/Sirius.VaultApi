@@ -5,6 +5,7 @@ using VaultApi.Common.ReadModels.Blockchains;
 using VaultApi.Common.ReadModels.KeyKeepers;
 using VaultApi.Common.ReadModels.TransactionApprovalConfirmations;
 using VaultApi.Common.ReadModels.Transactions;
+using VaultApi.Common.ReadModels.TransferValidationRequests;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Common.ReadModels.Wallets;
 
@@ -36,6 +37,8 @@ namespace VaultApi.Common.Persistence
 
         public DbSet<WalletGenerationRequest> WalletGenerationRequests { get; set; }
 
+        public DbSet<TransferValidationRequest> TransferValidationRequests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema(SchemaName);
@@ -46,6 +49,7 @@ namespace VaultApi.Common.Persistence
             BuildTransactions(modelBuilder);
             BuildVaults(modelBuilder);
             BuildWalletGenerationRequests(modelBuilder);
+            BuildTransferValidationRequests(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -151,6 +155,32 @@ namespace VaultApi.Common.Persistence
             modelBuilder.Entity<WalletGenerationRequest>()
                 .Property(entity => entity.Group)
                 .IsRequired();
+        }
+
+        private void BuildTransferValidationRequests(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TransferValidationRequest>()
+                .ToTable("transfer_validation_requests")
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.TenantId);
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.VaultId);
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.VaultType);
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .HasIndex(entity => entity.State);
+
+            modelBuilder.Entity<TransferValidationRequest>().Property(e => e.Details).HasConversion(
+                v => JsonConvert.SerializeObject(v,
+                    JsonSerializingSettings),
+                v =>
+                    JsonConvert.DeserializeObject<TransferDetails>(v,
+                        JsonSerializingSettings));
         }
     }
 }

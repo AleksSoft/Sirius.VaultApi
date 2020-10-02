@@ -7,6 +7,7 @@ package swisschain.sirius.vaultApi.transferValidationRequests;
 import "common.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 
 service TransferValidationRequests {
     rpc Get (GetTransferValidationRequestsRequest) returns (GetTransferValidationRequestsResponse);
@@ -48,6 +49,7 @@ message TransferValidationRequest {
     string sirius_signature = 4;
     google.protobuf.Timestamp created_at = 5;
     google.protobuf.Timestamp updated_at = 6;
+    google.protobuf.StringValue tenant_id = 7;
 }
 
 message TransferDetails {
@@ -141,7 +143,7 @@ message RejectTransferValidationRequestRequest {
 
 enum TransferValidationRequestRejectionReason {
     OTHER = 0;
-    REJECTED_POLICY = 1;
+    REJECTED_BY_POLICY = 1;
 }
 
 message RejectTransferValidationRequestResponseBody {

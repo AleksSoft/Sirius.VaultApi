@@ -115,7 +115,9 @@ namespace VaultApi.GrpcServices
                         PolicyResult = "PolicyResult", // TODO:
                         GuardianSignature = "GuardianSignature", // TODO:
                         CreatedAt = Timestamp.FromDateTime(transactionSigningRequest.CreatedAt.UtcDateTime),
-                        UpdatedAt = Timestamp.FromDateTime(transactionSigningRequest.UpdatedAt.UtcDateTime)
+                        UpdatedAt = Timestamp.FromDateTime(transactionSigningRequest.UpdatedAt.UtcDateTime),
+                        Group = transactionSigningRequest.Group,
+                        TenantId = transactionSigningRequest.TenantId
                     }));
 
             return new GetTransferSigningRequestsResponse {Response = response};

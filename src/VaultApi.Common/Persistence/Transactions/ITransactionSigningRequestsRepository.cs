@@ -8,9 +8,9 @@ namespace VaultApi.Common.Persistence.Transactions
     {
         Task<TransactionSigningRequest> GetByIdAsync(long transactionSigningRequestId);
 
-        Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForSharedVaultAsync();
+        Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForSharedVaultAsync(string tenantId = null);
 
-        Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForPrivateVaultAsync(long vaultId);
+        Task<IReadOnlyList<TransactionSigningRequest>> GetPendingForPrivateVaultAsync(long vaultId, string tenantId = null);
 
         Task InsertOrUpdateAsync(TransactionSigningRequest transactionSigningRequest);
     }
