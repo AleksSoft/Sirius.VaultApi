@@ -14,7 +14,7 @@ namespace VaultApi.Common.ReadModels.TransferValidationRequests
         public TransferValidationRequestState State { get; set; }
         public long Sequence { get; set; }
         public TransferValidationRequestRejectionReason? RejectionReason { get; set; }
-        public string RejectionReasonString { get; set; }
+        public string RejectionReasonMessage { get; set; }
         public long VaultId { get; set; }
         public VaultType VaultType { get; set; }
 

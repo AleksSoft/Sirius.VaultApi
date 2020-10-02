@@ -72,7 +72,7 @@ namespace VaultApi.GrpcServices
                 }
             };
 
-            if (EnumerableExtensions.Any(requests))
+            if (requests.Any())
                 response.Response.Requests.AddRange(requests.Select(x => new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.TransferValidationRequest()
                 {
                     CreatedAt = Timestamp.FromDateTimeOffset(x.CreatedAt),

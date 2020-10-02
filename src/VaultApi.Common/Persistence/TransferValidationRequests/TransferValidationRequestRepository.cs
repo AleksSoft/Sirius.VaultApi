@@ -103,7 +103,7 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
                         CustomerSignature = transferValidationRequest.CustomerSignature,
                         Details = transferValidationRequest.Details,
                         RejectionReason = transferValidationRequest.RejectionReason,
-                        RejectionReasonString = transferValidationRequest.RejectionReasonString,
+                        RejectionReasonMessage = transferValidationRequest.RejectionReasonMessage,
                         VaultId = transferValidationRequest.VaultId,
                         VaultType = transferValidationRequest.VaultType,
                     });
@@ -121,7 +121,7 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
 
             var query = context.TransferValidationRequests
                 .Where(entity => entity.State == TransferValidationRequestState.Created)
-                .Where(entity => entity.VaultType == VaultType.Private);
+                .Where(entity => entity.VaultType == VaultType.Shared);
 
             if (string.IsNullOrEmpty(tenantId))
             {

@@ -91,12 +91,14 @@ namespace VaultApi.Worker.MessageConsumers
                 RejectionReason = !@event.RejectionReason.HasValue ?
                     (Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason?)null : @event.RejectionReason.Value switch
                     {
-                        TransferValidationRequestRejectionReason.Other => Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason.Other,
-                        TransferValidationRequestRejectionReason.RejectedPolicy => Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason.RejectedPolicy,
+                        TransferValidationRequestRejectionReason.Other => 
+                        Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason.Other,
+                        TransferValidationRequestRejectionReason.RejectedByPolicy => 
+                        Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason.RejectedByPolicy,
                         
                         _ => throw new ArgumentOutOfRangeException(nameof(@event.RejectionReason), @event.RejectionReason, null)
                     },
-                RejectionReasonString = @event.RejectionReasonString,
+                RejectionReasonMessage = @event.RejectionReasonString,
                 Sequence = @event.Sequence,
                 SiriusSignature = @event.SiriusSignature,
                 State = @event.State switch {

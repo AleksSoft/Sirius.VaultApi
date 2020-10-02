@@ -3,6 +3,6 @@
     public enum TransferValidationRequestRejectionReason
     {
         Other = 0,
-        RejectedPolicy = 1,
+        RejectedByPolicy = 1,
     }
 }
