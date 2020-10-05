@@ -123,7 +123,7 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
                 .Where(entity => entity.State == TransferValidationRequestState.Created)
                 .Where(entity => entity.VaultType == VaultType.Shared);
 
-            if (string.IsNullOrEmpty(tenantId))
+            if (!string.IsNullOrEmpty(tenantId))
             {
                 query = query.Where(x => x.TenantId == tenantId);
             }
