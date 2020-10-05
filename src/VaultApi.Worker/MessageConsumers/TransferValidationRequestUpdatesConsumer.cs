@@ -116,7 +116,7 @@ namespace VaultApi.Worker.MessageConsumers
 
             await _transferValidationRequestRepository.UpdateAsync(transferValidationRequest);
 
-            _logger.LogInformation($"{nameof(TransactionSigningRequestUpdated)} has been processed {{@context}}",
+            _logger.LogInformation($"{nameof(TransferValidationRequestUpdated)} has been processed {{@context}}",
                 @event);
         }
     }
