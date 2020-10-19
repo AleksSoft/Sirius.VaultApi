@@ -29,7 +29,8 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
             {
                 await context.SaveChangesAsync();
             }
-            catch (DbUpdateException e) when (e.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
+            catch (DbUpdateException e) when (e.InnerException is PostgresException pgEx &&
+                                              pgEx.SqlState == PostgresErrorCodes.UniqueViolation)
             {
             }
         }
@@ -92,30 +93,40 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
                 var affectedRowsCount = await context.TransferValidationRequests
                     .Where(x => x.Id == transferValidationRequest.Id &&
                                 x.Sequence + 1 == transferValidationRequest.Sequence)
-                    .UpdateAsync(x => new TransferValidationRequest()
+                    .UpdateAsync(x => new TransferValidationRequest
                     {
                         Id = transferValidationRequest.Id,
-                        Sequence = transferValidationRequest.Sequence,
-                        State = transferValidationRequest.State,
-                        UpdatedAt = transferValidationRequest.UpdatedAt,
-                        CreatedAt = transferValidationRequest.CreatedAt,
-                        SiriusSignature = transferValidationRequest.SiriusSignature,
-                        CustomerSignature = transferValidationRequest.CustomerSignature,
-                        Details = transferValidationRequest.Details,
-                        RejectionReason = transferValidationRequest.RejectionReason,
-                        RejectionReasonMessage = transferValidationRequest.RejectionReasonMessage,
+                        TransferId = transferValidationRequest.TransferId,
+                        TenantId = transferValidationRequest.TenantId,
                         VaultId = transferValidationRequest.VaultId,
                         VaultType = transferValidationRequest.VaultType,
+                        Blockchain = transferValidationRequest.Blockchain,
+                        Asset = transferValidationRequest.Asset,
+                        SourceAddress = transferValidationRequest.SourceAddress,
+                        DestinationAddress = transferValidationRequest.DestinationAddress,
+                        Amount = transferValidationRequest.Amount,
+                        FeeLimit = transferValidationRequest.FeeLimit,
+                        TransferContext = transferValidationRequest.TransferContext,
+                        Document = transferValidationRequest.Document,
+                        Signature = transferValidationRequest.Signature,
+                        RejectionReason = transferValidationRequest.RejectionReason,
+                        RejectionReasonMessage = transferValidationRequest.RejectionReasonMessage,
+                        State = transferValidationRequest.State,
+                        Sequence = transferValidationRequest.Sequence,
+                        UpdatedAt = transferValidationRequest.UpdatedAt,
+                        CreatedAt = transferValidationRequest.CreatedAt
                     });
 
                 if (affectedRowsCount != 1)
                 {
-                    throw new InvalidOperationException($"No rows found to update the transferValidationRequest {transferValidationRequest.Id}");
+                    throw new InvalidOperationException(
+                        $"No rows found to update the transferValidationRequest {transferValidationRequest.Id}");
                 }
             }
         }
 
-        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForSharedVaultAsync(string tenantId = null)
+        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForSharedVaultAsync(string tenantId =
+            null)
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 
@@ -131,7 +142,8 @@ namespace VaultApi.Common.Persistence.TransferValidationRequests
             return await query.ToListAsync();
         }
 
-        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForPrivateVaultAsync(long vaultId, string tenantId = null)
+        public async Task<IReadOnlyList<TransferValidationRequest>> GetPendingForPrivateVaultAsync(long vaultId,
+            string tenantId = null)
         {
             await using var context = new DatabaseContext(_dbContextOptionsBuilder.Options);
 

@@ -8,27 +8,22 @@ using Swisschain.Sirius.Sdk.Primitives;
 using Swisschain.Sirius.VaultApi.ApiContract.Common;
 using Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests;
 using VaultApi.Common.Persistence.TransferValidationRequests;
-using VaultApi.Common.Persistence.Vaults;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
 using VaultApi.Utils;
-using NetworkType = Swisschain.Sirius.Sdk.Primitives.NetworkType;
 
 namespace VaultApi.GrpcServices
 {
     public class TransferValidationRequestsService : TransferValidationRequests.TransferValidationRequestsBase
     {
         private readonly ITransferValidationRequestRepository _transferValidationRequestRepository;
-        private readonly IVaultsRepository _vaultsRepository;
         private readonly Swisschain.Sirius.VaultAgent.ApiClient.IVaultAgentClient _vaultAgentClient;
 
         public TransferValidationRequestsService(
             ITransferValidationRequestRepository transferValidationRequestRepository,
-            IVaultsRepository vaultsRepository,
             Swisschain.Sirius.VaultAgent.ApiClient.IVaultAgentClient vaultAgentClient)
         {
             _transferValidationRequestRepository = transferValidationRequestRepository;
-            _vaultsRepository = vaultsRepository;
             _vaultAgentClient = vaultAgentClient;
         }
 
@@ -40,7 +35,8 @@ namespace VaultApi.GrpcServices
 
             if (!vaultType.HasValue)
             {
-                return GetErrorResponse(GetTransferValidationRequestsErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                return GetErrorResponse(
+                    GetTransferValidationRequestsErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Vault type required");
             }
 
@@ -48,89 +44,106 @@ namespace VaultApi.GrpcServices
 
             if (!vaultId.HasValue && vaultType == VaultType.Private)
             {
-                return GetErrorResponse(GetTransferValidationRequestsErrorResponseBody.Types.ErrorCode.InvalidParameters,
+                return GetErrorResponse(
+                    GetTransferValidationRequestsErrorResponseBody.Types.ErrorCode.InvalidParameters,
                     "Private vault id required");
             }
 
-            IReadOnlyCollection<VaultApi.Common.ReadModels.TransferValidationRequests.TransferValidationRequest> requests = null;
+            IReadOnlyCollection<VaultApi.Common.ReadModels.TransferValidationRequests.TransferValidationRequest>
+                requests;
             if (vaultType == VaultType.Shared)
                 requests = await _transferValidationRequestRepository.GetPendingForSharedVaultAsync();
             else
                 requests = await _transferValidationRequestRepository.GetPendingForPrivateVaultAsync(vaultId.Value);
 
-            var response = new GetTransferValidationRequestsResponse()
+            var response = new GetTransferValidationRequestsResponse
             {
                 Response = new GetTransferValidationRequestsResponseBody()
-                {
-                }
             };
 
             if (requests.Any())
-                response.Response.Requests.AddRange(requests.Select(x => new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.TransferValidationRequest()
-                {
-                    CreatedAt = Timestamp.FromDateTimeOffset(x.CreatedAt),
-                    CustomerSignature = x.CustomerSignature,
-                    Details = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.TransferDetails()
+                response.Response.Requests.AddRange(requests.Select(x => new TransferValidationRequest
                     {
-                        Amount = x.Details.Amount,
-                        Asset = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.Asset()
+                        Id = x.Id,
+                        OperationId = x.TransferId,
+                        TenantId = x.TenantId,
+                        Blockchain = new Blockchain
                         {
-                            Address = x.Details.Asset.Address,
-                            Id = x.Details.Asset.Id,
-                            Symbol = x.Details.Asset.Symbol
-                        },
-                        Blockchain = new Blockchain()
-                        {
-                            Id = x.Details.BlockchainId,
-                            NetworkType = x.Details.NetworkType switch
+                            Id = x.Blockchain.Id,
+                            NetworkType = x.Blockchain.NetworkType switch
                             {
-                                NetworkType.Private => Swisschain.Sirius.VaultApi.ApiContract.Common.NetworkType.Private,
-                                NetworkType.Test => Swisschain.Sirius.VaultApi.ApiContract.Common.NetworkType.Test,
-                                NetworkType.Public => Swisschain.Sirius.VaultApi.ApiContract.Common.NetworkType.Public,
-                                _ => throw new ArgumentOutOfRangeException(nameof(x.Details.NetworkType), x.Details.NetworkType, null)
+                                Swisschain.Sirius.Sdk.Primitives.NetworkType.Private =>
+                                Swisschain.Sirius.VaultApi.ApiContract.Common.NetworkType.Private,
+                                Swisschain.Sirius.Sdk.Primitives.NetworkType.Test =>
+                                Swisschain.Sirius.VaultApi.ApiContract.Common.NetworkType.Test,
+                                Swisschain.Sirius.Sdk.Primitives.NetworkType.Public =>
+                                Swisschain.Sirius.VaultApi.ApiContract.Common.NetworkType.Public,
+                                _ => throw new ArgumentOutOfRangeException(nameof(x.Blockchain.NetworkType),
+                                    x.Blockchain.NetworkType,
+                                    null)
                             },
-                            ProtocolId = x.Details.ProtocolId
+                            ProtocolId = x.Blockchain.ProtocolCode
                         },
-                        ClientContext = new ClientContext()
+                        Asset = new Asset
                         {
-                            ApiKeyId = x.Details.UserContext.ApiKeyId,
-                            WithdrawalReferenceId = x.Details.UserContext.WithdrawalReferenceId,
-                            AccountReferenceId = x.Details.UserContext.AccountReferenceId,
-                            Ip = x.Details.UserContext.PassClientIp,
-                            UserId = x.Details.UserContext.UserId
+                            Address = x.Asset.Address,
+                            Id = x.Asset.Id,
+                            Symbol = x.Asset.Symbol
                         },
-                        DestinationAddress = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.DestinationAddress()
+                        SourceAddress = new SourceAddress
                         {
-                            Name = x.Details.DestinationAddress.Name,
-                            Group = x.Details.DestinationAddress.Group,
-                            Address = x.Details.DestinationAddress.Address,
-                            Tag = x.Details.DestinationAddress.Tag,
-                            TagType = !x.Details.DestinationAddress.TagType.HasValue ? new NullableTagType() { Null = NullValue.NullValue } :
-                                new NullableTagType()
+                            Address = x.SourceAddress.Address,
+                            Group = x.SourceAddress.Group,
+                            Name = x.SourceAddress.Name
+                        },
+                        DestinationAddress = new DestinationAddress
+                        {
+                            Name = x.DestinationAddress.Name,
+                            Group = x.DestinationAddress.Group,
+                            Address = x.DestinationAddress.Address,
+                            Tag = x.DestinationAddress.Tag,
+                            TagType = !x.DestinationAddress.TagType.HasValue
+                                ? new NullableTagType {Null = NullValue.NullValue}
+                                : new NullableTagType
                                 {
-                                    TagType = x.Details.DestinationAddress.TagType.Value switch
+                                    TagType = x.DestinationAddress.TagType.Value switch
                                     {
                                         DestinationTagType.Text => TagType.Text,
                                         DestinationTagType.Number => TagType.Number,
-                                        _ => throw new ArgumentOutOfRangeException(nameof(x.Details.DestinationAddress.TagType.Value),
-                                            x.Details.DestinationAddress.TagType.Value, null)
+                                        _ => throw new ArgumentOutOfRangeException(
+                                            nameof(x.DestinationAddress.TagType.Value),
+                                            x.DestinationAddress.TagType.Value,
+                                            null)
                                     }
                                 }
                         },
-                        FeeLimit = x.Details.FeeLimit,
-                        OperationId = x.Details.OperationId,
-                        SourceAddress = new Swisschain.Sirius.VaultApi.ApiContract.TransferValidationRequests.SourceAddress()
+                        Amount = x.Amount,
+                        FeeLimit = x.FeeLimit,
+                        TransferContext = new TransferContext
                         {
-                            Address = x.Details.SourceAddress.Address,
-                            Group = x.Details.SourceAddress.Group,
-                            Name = x.Details.SourceAddress.Name
-                        }
-                    },
-                    Id = x.Id,
-                    SiriusSignature = x.SiriusSignature,
-                    UpdatedAt = Timestamp.FromDateTimeOffset(x.UpdatedAt),
-                    TenantId = x.TenantId
-                }).ToArray());
+                            AccountReferenceId = x.TransferContext.AccountReferenceId,
+                            WithdrawalReferenceId = x.TransferContext.WithdrawalReferenceId,
+                            Component = x.TransferContext.Component,
+                            OperationType = x.TransferContext.OperationType,
+                            SourceGroup = x.TransferContext.SourceGroup,
+                            DestinationGroup = x.TransferContext.DestinationGroup,
+                            Document = x.TransferContext.Document,
+                            Signature = x.TransferContext.Signature,
+                            RequestContext = new RequestContext
+                            {
+                                UserId = x.TransferContext.RequestContext.UserId,
+                                ApiKeyId = x.TransferContext.RequestContext.ApiKeyId,
+                                Ip = x.TransferContext.RequestContext.Ip,
+                                Timestamp = new NullableTimestamp
+                                {
+                                    Timestamp = Timestamp.FromDateTimeOffset(x.TransferContext.RequestContext.Timestamp)
+                                }
+                            }
+                        },
+                        CreatedAt = Timestamp.FromDateTimeOffset(x.CreatedAt),
+                        UpdatedAt = Timestamp.FromDateTimeOffset(x.UpdatedAt),
+                    })
+                    .ToArray());
 
             return response;
         }
@@ -161,18 +174,21 @@ namespace VaultApi.GrpcServices
                 .GetByIdAsync(request.TransferValidationRequestId);
 
             var result = await _vaultAgentClient.TransferValidationRequests.ConfirmAsync(
-                new Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.ConfirmTransferValidationRequestRequest()
-                {
-                    TransferValidationRequestId = transferValidationRequest.Id,
-                    HostProcessId = request.HostProcessId,
-                    PolicyResult = request.PolicyResult,
-                    RequestId = StringUtils.FormatRequestId(transferValidationRequest.TenantId, request.RequestId),
-                    Signature = request.Signature
-                });
+                new Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.
+                    ConfirmTransferValidationRequestRequest
+                    {
+                        RequestId = StringUtils.FormatRequestId(transferValidationRequest.TenantId, request.RequestId),
+                        TransferValidationRequestId = transferValidationRequest.Id,
+                        Document = request.Document,
+                        Signature = request.Signature,
+                        HostProcessId = request.HostProcessId
+                    });
 
-            if (result.BodyCase == Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.ConfirmTransferValidationRequestResponse.BodyOneofCase.Error)
+            if (result.BodyCase == Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests
+                .ConfirmTransferValidationRequestResponse.BodyOneofCase.Error)
             {
-                return GetErrorResponse(ConfirmTransferValidationRequestErrorResponseBody.Types.ErrorCode.Unknown, result.Error.ErrorMessage);
+                return GetErrorResponse(ConfirmTransferValidationRequestErrorResponseBody.Types.ErrorCode.Unknown,
+                    result.Error.ErrorMessage);
             }
 
             return new ConfirmTransferValidationRequestResponse
@@ -207,19 +223,33 @@ namespace VaultApi.GrpcServices
                 .GetByIdAsync(request.TransferValidationRequestId);
 
             var result = await _vaultAgentClient.TransferValidationRequests.RejectAsync(
-                new Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.RejectTransferValidationRequestRequest()
-                {
-                    TransferValidationRequestId = transferValidationRequest.Id,
-                    HostProcessId = request.HostProcessId,
-                    PolicyResult = request.PolicyResult,
-                    RequestId = StringUtils.FormatRequestId(transferValidationRequest.TenantId, request.RequestId),
-                    Signature = request.Signature
-                });
+                new Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.
+                    RejectTransferValidationRequestRequest
+                    {
+                        RequestId = StringUtils.FormatRequestId(transferValidationRequest.TenantId, request.RequestId),
+                        TransferValidationRequestId = transferValidationRequest.Id,
+                        RejectionReason = request.RejectionReason switch
+                        {
+                            TransferValidationRequestRejectionReason.Other => Swisschain.Sirius.VaultAgent.ApiContract
+                                .TransferValidationRequests.TransferValidationRequestRejectionReason.Other,
+                            TransferValidationRequestRejectionReason.RejectedByPolicy => Swisschain.Sirius.VaultAgent
+                                .ApiContract.TransferValidationRequests.TransferValidationRequestRejectionReason
+                                .RejectedByPolicy,
+                            _ => throw new ArgumentOutOfRangeException(nameof(request.RejectionReason),
+                                request.RejectionReason,
+                                null)
+                        },
+                        RejectionReasonMessage = request.RejectionReasonMessage,
+                        Document = request.Document,
+                        Signature = request.Signature,
+                        HostProcessId = request.HostProcessId
+                    });
 
-            if (result.BodyCase == 
-                Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests.RejectTransferValidationRequestResponse.BodyOneofCase.Error)
+            if (result.BodyCase ==
+                Swisschain.Sirius.VaultAgent.ApiContract.TransferValidationRequests
+                    .RejectTransferValidationRequestResponse.BodyOneofCase.Error)
             {
-                return GetErrorResponse(RejectTransferValidationRequestErrorResponseBody.Types.ErrorCode.Unknown, 
+                return GetErrorResponse(RejectTransferValidationRequestErrorResponseBody.Types.ErrorCode.Unknown,
                     result.Error.ErrorMessage);
             }
 

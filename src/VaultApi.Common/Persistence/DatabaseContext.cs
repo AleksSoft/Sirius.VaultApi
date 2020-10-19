@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using VaultApi.Common.Migrations;
 using VaultApi.Common.ReadModels.Blockchains;
 using VaultApi.Common.ReadModels.KeyKeepers;
 using VaultApi.Common.ReadModels.TransactionApprovalConfirmations;
-using VaultApi.Common.ReadModels.Transactions;
+using VaultApi.Common.ReadModels.TransferSigningRequests;
 using VaultApi.Common.ReadModels.TransferValidationRequests;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Common.ReadModels.Wallets;
@@ -25,13 +26,13 @@ namespace VaultApi.Common.Persistence
         {
         }
 
-        public DbSet<Blockchain> Blockchains { get; set; }
+        public DbSet<VaultApi.Common.ReadModels.Blockchains.Blockchain> Blockchains { get; set; }
 
         public DbSet<KeyKeeper> KeyKeepers { get; set; }
 
         public DbSet<TransactionApprovalConfirmation> TransactionApprovalConfirmations { get; set; }
 
-        public DbSet<TransactionSigningRequest> TransactionSigningRequests { get; set; }
+        public DbSet<TransferSigningRequest> TransferSigningRequests { get; set; }
 
         public DbSet<Vault> Vaults { get; set; }
 
@@ -46,9 +47,9 @@ namespace VaultApi.Common.Persistence
             BuildBlockchain(modelBuilder);
             BuildKeyKeepers(modelBuilder);
             BuildTransactionApprovalConfirmations(modelBuilder);
-            BuildTransactions(modelBuilder);
             BuildVaults(modelBuilder);
             BuildWalletGenerationRequests(modelBuilder);
+            BuildTransferSigningRequests(modelBuilder);
             BuildTransferValidationRequests(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
@@ -56,11 +57,11 @@ namespace VaultApi.Common.Persistence
 
         private static void BuildBlockchain(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Blockchain>()
+            modelBuilder.Entity<VaultApi.Common.ReadModels.Blockchains.Blockchain>()
                 .ToTable("blockchains")
                 .HasKey(entity => entity.Id);
 
-            modelBuilder.Entity<Blockchain>()
+            modelBuilder.Entity<VaultApi.Common.ReadModels.Blockchains.Blockchain>()
                 .Property(e => e.Protocol)
                 .HasConversion(
                     v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
@@ -85,43 +86,6 @@ namespace VaultApi.Common.Persistence
 
             modelBuilder.Entity<TransactionApprovalConfirmation>()
                 .HasIndex(entity => entity.TransactionApprovalRequestId);
-        }
-
-        private static void BuildTransactions(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .ToTable("transaction_signing_requests")
-                .HasKey(entity => entity.Id);
-
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .Property(e => e.SigningAddresses)
-                .HasConversion(
-                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
-                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<string>>(v, JsonSerializingSettings));
-
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .Property(e => e.CoinsToSpend)
-                .HasConversion(
-                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
-                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<Coin>>(v, JsonSerializingSettings));
-
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .Property(e => e.UserContext)
-                .HasConversion(
-                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
-                    v => JsonConvert.DeserializeObject<UserContext>(v, JsonSerializingSettings));
-
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .HasIndex(entity => entity.TenantId);
-
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .HasIndex(entity => entity.VaultId);
-
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .HasIndex(entity => entity.VaultType);
-
-            modelBuilder.Entity<TransactionSigningRequest>()
-                .HasIndex(entity => entity.State);
         }
 
         private static void BuildVaults(ModelBuilder modelBuilder)
@@ -157,6 +121,44 @@ namespace VaultApi.Common.Persistence
                 .IsRequired();
         }
 
+        private static void BuildTransferSigningRequests(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TransferSigningRequest>()
+                .ToTable("transfer_signing_requests")
+                .HasKey(entity => entity.Id);
+
+            modelBuilder.Entity<TransferSigningRequest>()
+                .Property(e => e.Blockchain)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<ReadModels.TransferSigningRequests.Blockchain>(v,
+                        JsonSerializingSettings));
+
+            modelBuilder.Entity<TransferSigningRequest>()
+                .Property(e => e.SigningAddresses)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<string>>(v, JsonSerializingSettings));
+
+            modelBuilder.Entity<TransferSigningRequest>()
+                .Property(e => e.CoinsToSpend)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<IReadOnlyCollection<Coin>>(v, JsonSerializingSettings));
+
+            modelBuilder.Entity<TransferSigningRequest>()
+                .HasIndex(entity => entity.TenantId);
+
+            modelBuilder.Entity<TransferSigningRequest>()
+                .HasIndex(entity => entity.VaultId);
+
+            modelBuilder.Entity<TransferSigningRequest>()
+                .HasIndex(entity => entity.VaultType);
+
+            modelBuilder.Entity<TransferSigningRequest>()
+                .HasIndex(entity => entity.State);
+        }
+
         private void BuildTransferValidationRequests(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TransferValidationRequest>()
@@ -175,12 +177,50 @@ namespace VaultApi.Common.Persistence
             modelBuilder.Entity<TransferValidationRequest>()
                 .HasIndex(entity => entity.State);
 
-            modelBuilder.Entity<TransferValidationRequest>().Property(e => e.Details).HasConversion(
-                v => JsonConvert.SerializeObject(v,
-                    JsonSerializingSettings),
-                v =>
-                    JsonConvert.DeserializeObject<TransferDetails>(v,
-                        JsonSerializingSettings));
+            modelBuilder.Entity<TransferValidationRequest>()
+                .Property(e => e.Blockchain)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v,
+                        JsonSerializingSettings),
+                    v =>
+                        JsonConvert.DeserializeObject<ReadModels.TransferValidationRequests.Blockchain>(v,
+                            JsonSerializingSettings));
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .Property(e => e.Asset)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v,
+                        JsonSerializingSettings),
+                    v =>
+                        JsonConvert.DeserializeObject<Asset>(v,
+                            JsonSerializingSettings));
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .Property(e => e.SourceAddress)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v,
+                        JsonSerializingSettings),
+                    v =>
+                        JsonConvert.DeserializeObject<SourceAddress>(v,
+                            JsonSerializingSettings));
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .Property(e => e.DestinationAddress)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v,
+                        JsonSerializingSettings),
+                    v =>
+                        JsonConvert.DeserializeObject<DestinationAddress>(v,
+                            JsonSerializingSettings));
+
+            modelBuilder.Entity<TransferValidationRequest>()
+                .Property(e => e.TransferContext)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v,
+                        JsonSerializingSettings),
+                    v =>
+                        JsonConvert.DeserializeObject<ReadModels.TransferValidationRequests.TransferContext>(v,
+                            JsonSerializingSettings));
         }
     }
 }

@@ -7,7 +7,6 @@ package swisschain.sirius.vaultApi.transferValidationRequests;
 import "common.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/struct.proto";
 
 service TransferValidationRequests {
     rpc Get (GetTransferValidationRequestsRequest) returns (GetTransferValidationRequestsResponse);
@@ -44,23 +43,18 @@ message GetTransferValidationRequestsErrorResponseBody {
 
 message TransferValidationRequest {
     int64 id = 1;
-    TransferDetails details = 2;
-    string customer_signature = 3;
-    string sirius_signature = 4;
-    google.protobuf.Timestamp created_at = 5;
-    google.protobuf.Timestamp updated_at = 6;
-    google.protobuf.StringValue tenant_id = 7;
-}
+    int64 operation_id = 2;
+    google.protobuf.StringValue tenant_id = 3;
+    Blockchain blockchain = 4;
+    Asset asset = 5;
+    SourceAddress source_address = 6;
+    DestinationAddress destination_address = 7;
+    .swisschain.sirius.vaultApi.common.BigDecimal amount = 8;
+    .swisschain.sirius.vaultApi.common.BigDecimal fee_limit = 9;
+    TransferContext transfer_context = 10;
+    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp updated_at = 12;
 
-message TransferDetails {
-    int64 operation_id = 1;
-    Blockchain blockchain = 2;
-    Asset asset = 3;
-    SourceAddress source_address = 4;
-    DestinationAddress destination_address = 5;
-    .swisschain.sirius.vaultApi.common.BigDecimal amount = 6;
-    .swisschain.sirius.vaultApi.common.BigDecimal fee_limit = 7;
-    ClientContext client_context = 8;
 }
 
 message Blockchain {
@@ -89,21 +83,32 @@ message DestinationAddress {
     .swisschain.sirius.vaultApi.common.NullableTagType tag_type = 5;
 }
 
-message ClientContext{
-    google.protobuf.StringValue user_id = 1;
-    google.protobuf.StringValue api_key_id = 2;
+message TransferContext {
+    google.protobuf.StringValue document = 1;
+    google.protobuf.StringValue signature = 2;
     google.protobuf.StringValue account_reference_id = 3;
     google.protobuf.StringValue withdrawal_reference_id = 4;
-    google.protobuf.StringValue ip = 5;
-    .swisschain.sirius.vaultApi.common.NullableTimestamp timestamp = 6;
+    string component = 5;
+    string operation_type = 6;
+    google.protobuf.StringValue source_group = 7;
+    google.protobuf.StringValue destination_group = 8;
+    RequestContext request_context = 9;
 }
+
+message RequestContext{
+    google.protobuf.StringValue user_id = 1;
+    google.protobuf.StringValue api_key_id = 2;
+    google.protobuf.StringValue ip = 3;
+    .swisschain.sirius.vaultApi.common.NullableTimestamp timestamp = 4;
+}
+
 
 // Confirm
 
 message ConfirmTransferValidationRequestRequest {
     string request_id = 1;
     int64 transfer_validation_request_id = 2;
-    string policy_result = 3;
+    string document = 3;
     string signature = 4;
     string host_process_id = 5;
 }
@@ -134,9 +139,9 @@ message ConfirmTransferValidationRequestResponse {
 message RejectTransferValidationRequestRequest {
     string request_id = 1;
     int64 transfer_validation_request_id = 2;
-    TransferValidationRequestRejectionReason reason = 3;
-    string reason_message = 4;
-    string policy_result = 5;
+    TransferValidationRequestRejectionReason rejection_reason = 3;
+    string rejection_reason_message = 4;
+    string document = 5;
     string signature = 6;
     string host_process_id = 7;
 }

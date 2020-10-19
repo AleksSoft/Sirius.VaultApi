@@ -72,11 +72,11 @@ namespace VaultApi.Worker
                             });
 
                         factoryConfigurator.ReceiveEndpoint(
-                            "sirius-vault-api-transaction-signing-request-updates",
+                            "sirius-vault-api-transfer-signing-request-updates",
                             endpoint =>
                             {
                                 endpoint.Consumer(provider.Container
-                                    .GetRequiredService<TransactionSigningRequestUpdatesConsumer>);
+                                    .GetRequiredService<TransferSigningRequestUpdatesConsumer>);
                             });
 
                         factoryConfigurator.ReceiveEndpoint(
