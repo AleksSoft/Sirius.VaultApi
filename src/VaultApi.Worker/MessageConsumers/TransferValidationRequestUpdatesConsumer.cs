@@ -2,17 +2,11 @@
 using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using Swisschain.Sirius.VaultAgent.MessagingContract.Transactions;
 using Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests;
 using VaultApi.Common.Persistence.Blockchains;
 using VaultApi.Common.Persistence.TransferValidationRequests;
 using VaultApi.Common.Persistence.Vaults;
 using VaultApi.Common.ReadModels.TransferValidationRequests;
-using Asset = VaultApi.Common.ReadModels.TransferValidationRequests.Asset;
-using TransferDetails = VaultApi.Common.ReadModels.TransferValidationRequests.TransferDetails;
-using TransferValidationRequestRejectionReason = Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests.TransferValidationRequestRejectionReason;
-using TransferValidationRequestState = Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests.TransferValidationRequestState;
-using UserContext = VaultApi.Common.ReadModels.Transactions.UserContext;
 
 namespace VaultApi.Worker.MessageConsumers
 {
@@ -23,8 +17,7 @@ namespace VaultApi.Worker.MessageConsumers
         private readonly ILogger<TransferValidationRequestUpdatesConsumer> _logger;
         private readonly ITransferValidationRequestRepository _transferValidationRequestRepository;
 
-        public TransferValidationRequestUpdatesConsumer(
-            IVaultsRepository vaultsRepository,
+        public TransferValidationRequestUpdatesConsumer(IVaultsRepository vaultsRepository,
             IBlockchainsRepository blockchainsRepository,
             ILogger<TransferValidationRequestUpdatesConsumer> logger,
             ITransferValidationRequestRepository transferValidationRequestRepository)
@@ -40,78 +33,104 @@ namespace VaultApi.Worker.MessageConsumers
             var @event = context.Message;
 
             var vault = await _vaultsRepository.GetByIdAsync(@event.VaultId);
-            var blockchain = await _blockchainsRepository.GetByIdAsync(@event.Details.BlockchainId);
+
+            if (vault == null)
+                throw new Exception($"Vault not found. Id: {@event.VaultId}");
+
+            var blockchain = await _blockchainsRepository.GetByIdAsync(@event.BlockchainId);
 
             if (blockchain == null)
-                throw new Exception($"Blockchain not found. Id: {@event.Details.BlockchainId}");
+                throw new Exception($"Blockchain not found. Id: {@event.BlockchainId}");
 
-            var transferValidationRequest = new TransferValidationRequest()
+            var transferValidationRequest = new TransferValidationRequest
             {
                 Id = @event.Id,
-                CreatedAt = @event.CreatedAt,
-                CustomerSignature = @event.CustomerSignature,
-                Details = new TransferDetails()
-                {
-                    ProtocolId = blockchain.Protocol.Code,
-                    NetworkType = blockchain.NetworkType,
-                    UserContext = new UserContext()
-                    {
-                        WithdrawalParamsSignature = @event.Details.UserContext.WithdrawalParamsSignature,
-                        AccountReferenceId = @event.Details.UserContext.AccountReferenceId,
-                        ApiKeyId = @event.Details.UserContext.ApiKeyId,
-                        PassClientIp = @event.Details.UserContext.PassClientIp,
-                        UserId = @event.Details.UserContext.UserId,
-                        WithdrawalReferenceId = @event.Details.UserContext.WithdrawalReferenceId
-                    },
-                    Amount = @event.Details.Amount,
-                    Asset = new Asset()
-                    {
-                        Address = @event.Details.Asset.Address,
-                        Id = @event.Details.Asset.Id,
-                        Symbol = @event.Details.Asset.Symbol
-                    },
-                    BlockchainId = @event.Details.BlockchainId,
-                    DestinationAddress = new Common.ReadModels.TransferValidationRequests.DestinationAddress()
-                    {
-                        Address = @event.Details.DestinationAddress.Address,
-                        Group = @event.Details.DestinationAddress.Group,
-                        Name = @event.Details.DestinationAddress.Name,
-                        Tag = @event.Details.DestinationAddress.Tag,
-                        TagType = @event.Details.DestinationAddress.TagType
-                    },
-                    FeeLimit = @event.Details.FeeLimit,
-                    OperationId = @event.Details.OperationId,
-                    SourceAddress = new Common.ReadModels.TransferValidationRequests.SourceAddress()
-                    {
-                        Name = @event.Details.SourceAddress.Name,
-                        Group = @event.Details.SourceAddress.Group,
-                        Address = @event.Details.SourceAddress.Address
-                    },
-                },
-                RejectionReason = !@event.RejectionReason.HasValue ?
-                    (Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason?)null : @event.RejectionReason.Value switch
-                    {
-                        TransferValidationRequestRejectionReason.Other => 
-                        Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason.Other,
-                        TransferValidationRequestRejectionReason.RejectedByPolicy => 
-                        Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason.RejectedByPolicy,
-                        
-                        _ => throw new ArgumentOutOfRangeException(nameof(@event.RejectionReason), @event.RejectionReason, null)
-                    },
-                RejectionReasonMessage = @event.RejectionReasonString,
-                Sequence = @event.Sequence,
-                SiriusSignature = @event.SiriusSignature,
-                State = @event.State switch {
-                    TransferValidationRequestState.Created => Common.ReadModels.TransferValidationRequests.TransferValidationRequestState.Created,
-                    TransferValidationRequestState.Confirmed => Common.ReadModels.TransferValidationRequests.TransferValidationRequestState.Confirmed,
-                    TransferValidationRequestState.Rejected => Common.ReadModels.TransferValidationRequests.TransferValidationRequestState.Rejected,
-                    
-                    _ => throw new ArgumentOutOfRangeException(nameof(@event.State), @event.State, null)
-                },
-                UpdatedAt = @event.UpdatedAt,
+                TransferId = @event.TransferId,
+                TenantId = @event.TenantId,
                 VaultId = @event.VaultId,
                 VaultType = vault.Type,
-                TenantId = @event.TenantId
+                Blockchain = new Blockchain
+                {
+                    Id = @event.BlockchainId,
+                    NetworkType = blockchain.NetworkType,
+                    ProtocolCode = blockchain.Protocol.Code
+                },
+                Asset = new Common.ReadModels.TransferValidationRequests.Asset
+                {
+                    Address = @event.Asset.Address,
+                    Id = @event.Asset.Id,
+                    Symbol = @event.Asset.Symbol
+                },
+                SourceAddress =
+                    new Common.ReadModels.TransferValidationRequests.SourceAddress()
+                    {
+                        Name = @event.SourceAddress.Name,
+                        Group = @event.SourceAddress.Group,
+                        Address = @event.SourceAddress.Address
+                    },
+                DestinationAddress =
+                    new Common.ReadModels.TransferValidationRequests.DestinationAddress()
+                    {
+                        Address = @event.DestinationAddress.Address,
+                        Group = @event.DestinationAddress.Group,
+                        Name = @event.DestinationAddress.Name,
+                        Tag = @event.DestinationAddress.Tag,
+                        TagType = @event.DestinationAddress.TagType
+                    },
+                Amount = @event.Amount,
+                FeeLimit = @event.FeeLimit,
+                TransferContext = new Common.ReadModels.TransferValidationRequests.TransferContext
+                {
+                    AccountReferenceId = @event.TransferContext.AccountReferenceId,
+                    WithdrawalReferenceId = @event.TransferContext.WithdrawalReferenceId,
+                    Component = @event.TransferContext.Component,
+                    OperationType = @event.TransferContext.OperationType,
+                    SourceGroup = @event.TransferContext.SourceGroup,
+                    DestinationGroup = @event.TransferContext.DestinationGroup,
+                    Document = @event.TransferContext.Document,
+                    Signature = @event.TransferContext.Signature,
+                    RequestContext = new Common.ReadModels.TransferValidationRequests.RequestContext
+                    {
+                        UserId = @event.TransferContext.RequestContext.UserId,
+                        ApiKeyId = @event.TransferContext.RequestContext.ApiKeyId,
+                        Ip = @event.TransferContext.RequestContext.Ip,
+                        Timestamp = @event.TransferContext.RequestContext.Timestamp
+                    }
+                },
+                Document = @event.Document,
+                Signature = @event.Signature,
+                RejectionReason = !@event.RejectionReason.HasValue
+                    ? (Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason?) null
+                    : @event.RejectionReason.Value switch
+                    {
+                        Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests
+                            .TransferValidationRequestRejectionReason.Other =>
+                        Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason.Other,
+                        Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests
+                            .TransferValidationRequestRejectionReason.RejectedByPolicy =>
+                        Common.ReadModels.TransferValidationRequests.TransferValidationRequestRejectionReason
+                            .RejectedByPolicy,
+                        _ => throw new ArgumentOutOfRangeException(nameof(@event.RejectionReason),
+                            @event.RejectionReason,
+                            null)
+                    },
+                RejectionReasonMessage = @event.RejectionReasonMessage,
+                State = @event.State switch
+                {
+                    Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests
+                        .TransferValidationRequestState.Created => Common.ReadModels.TransferValidationRequests
+                        .TransferValidationRequestState.Created,
+                    Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests
+                        .TransferValidationRequestState.Confirmed => Common.ReadModels.TransferValidationRequests
+                        .TransferValidationRequestState.Confirmed,
+                    Swisschain.Sirius.VaultAgent.MessagingContract.TransferValidationRequests
+                        .TransferValidationRequestState.Rejected => Common.ReadModels.TransferValidationRequests
+                        .TransferValidationRequestState.Rejected,
+                    _ => throw new ArgumentOutOfRangeException(nameof(@event.State), @event.State, null)
+                },
+                Sequence = @event.Sequence,
+                CreatedAt = @event.CreatedAt,
+                UpdatedAt = @event.UpdatedAt
             };
 
             await _transferValidationRequestRepository.UpdateAsync(transferValidationRequest);

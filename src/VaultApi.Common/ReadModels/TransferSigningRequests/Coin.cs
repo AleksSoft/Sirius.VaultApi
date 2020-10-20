@@ -1,7 +1,7 @@
 ﻿using System;
 using Swisschain.Sirius.Sdk.Primitives;
 
-namespace VaultApi.Common.ReadModels.Transactions
+namespace VaultApi.Common.ReadModels.TransferSigningRequests
 {
     public sealed class Coin : IEquatable<Coin>
     {

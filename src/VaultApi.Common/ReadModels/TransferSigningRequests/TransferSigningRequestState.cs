@@ -1,6 +1,6 @@
-﻿namespace VaultApi.Common.ReadModels.Transactions
+﻿namespace VaultApi.Common.ReadModels.TransferSigningRequests
 {
-    public enum TransactionSigningRequestState
+    public enum TransferSigningRequestState
     {
         Pending = 0,
 
