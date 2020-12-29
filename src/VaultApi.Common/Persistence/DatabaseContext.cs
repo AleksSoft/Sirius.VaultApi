@@ -119,6 +119,13 @@ namespace VaultApi.Common.Persistence
             modelBuilder.Entity<WalletGenerationRequest>()
                 .Property(entity => entity.Group)
                 .IsRequired();
+
+            modelBuilder.Entity<WalletGenerationRequest>()
+                .Property(e => e.WalletGenerationContext)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v, JsonSerializingSettings),
+                    v => JsonConvert.DeserializeObject<WalletGenerationContext>(v,
+                        JsonSerializingSettings));
         }
 
         private static void BuildTransferSigningRequests(ModelBuilder modelBuilder)

@@ -7,7 +7,6 @@ namespace VaultApi.Worker.MessageConsumers
         public static IServiceCollection AddMessageConsumers(this IServiceCollection services)
         {
             services.AddTransient<BlockchainUpdatesConsumer>();
-            services.AddTransient<KeyKeeperUpdatedConsumer>();
             services.AddTransient<TransferSigningRequestUpdatesConsumer>();
             services.AddTransient<VaultUpdatedConsumer>();
             services.AddTransient<WalletGenerationRequestUpdatedConsumer>();

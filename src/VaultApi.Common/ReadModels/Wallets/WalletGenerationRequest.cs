@@ -33,5 +33,7 @@ namespace VaultApi.Common.ReadModels.Wallets
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }
+
+        public WalletGenerationContext WalletGenerationContext { get; set; }
     }
 }

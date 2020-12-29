@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
@@ -11,6 +12,7 @@ using VaultApi.Common.Persistence.Wallets;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
 using VaultApi.Utils;
+using WalletGenerationContextType = VaultApi.Common.ReadModels.Wallets.WalletGenerationContextType;
 
 namespace VaultApi.GrpcServices
 {
@@ -74,7 +76,18 @@ namespace VaultApi.GrpcServices
                     Group = walletGenerationRequest.Group,
                     TenantId = walletGenerationRequest.TenantId,
                     CreatedAt = Timestamp.FromDateTime(walletGenerationRequest.CreatedAt.UtcDateTime),
-                    UpdatedAt = Timestamp.FromDateTime(walletGenerationRequest.UpdatedAt.UtcDateTime)
+                    UpdatedAt = Timestamp.FromDateTime(walletGenerationRequest.UpdatedAt.UtcDateTime),
+                    WalletGenerationContext = new WalletGenerationContext()
+                    {
+                        ObjectType = walletGenerationRequest.WalletGenerationContext.ObjectType switch {
+                            WalletGenerationContextType.BrokerAccount => Swisschain.Sirius.VaultApi.ApiContract.Wallets.WalletGenerationContextType.BrokerAccount,
+                            WalletGenerationContextType.Account => Swisschain.Sirius.VaultApi.ApiContract.Wallets.WalletGenerationContextType.Account,
+                            _ => throw new ArgumentOutOfRangeException(nameof(walletGenerationRequest.WalletGenerationContext.ObjectType),
+                                walletGenerationRequest.WalletGenerationContext.ObjectType, null)
+                        },
+                        ReferenceId = walletGenerationRequest.WalletGenerationContext.ReferenceId,
+                        ObjectId = walletGenerationRequest.WalletGenerationContext.ObjectId
+                    }
                 }));
 
             return new GetWalletGenerationRequestResponse {Response = response};
