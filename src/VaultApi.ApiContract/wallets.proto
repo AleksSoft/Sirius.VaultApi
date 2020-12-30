@@ -4,6 +4,7 @@ option csharp_namespace = "Swisschain.Sirius.VaultApi.ApiContract.Wallets";
 
 package swisschain.sirius.vaultApi.wallets;
 
+import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
 import "common.proto";
 
@@ -49,6 +50,7 @@ message WalletGenerationRequest {
     string tenant_id = 6;
     google.protobuf.Timestamp created_at = 7;
     google.protobuf.Timestamp updated_at = 8;
+    WalletGenerationContext wallet_generation_context = 9;
 }
 
 // Confirm
@@ -117,4 +119,15 @@ message RejectWalletGenerationRequestErrorResponseBody {
 
     ErrorCode error_code = 1;
     string error_message = 2;
+}
+
+enum WalletGenerationContextObjectType {
+  BROKER_ACCOUNT = 0;
+  ACCOUNT = 1;
+}
+
+message WalletGenerationContext {
+  int64 object_id = 1;
+  WalletGenerationContextObjectType object_type = 2;
+  google.protobuf.StringValue reference_id = 3;
 }

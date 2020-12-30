@@ -64,14 +64,6 @@ namespace VaultApi.Worker
                             });
 
                         factoryConfigurator.ReceiveEndpoint(
-                            "sirius-vault-api-key-keepers-updates",
-                            endpoint =>
-                            {
-                                endpoint.Consumer(provider.Container
-                                    .GetRequiredService<KeyKeeperUpdatedConsumer>);
-                            });
-
-                        factoryConfigurator.ReceiveEndpoint(
                             "sirius-vault-api-transfer-signing-request-updates",
                             endpoint =>
                             {

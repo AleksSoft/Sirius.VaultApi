@@ -7,6 +7,7 @@ using VaultApi.Common.Persistence.Blockchains;
 using VaultApi.Common.Persistence.Vaults;
 using VaultApi.Common.Persistence.Wallets;
 using VaultApi.Common.ReadModels.Wallets;
+using WalletGenerationContextObjectType = Swisschain.Sirius.VaultAgent.MessagingContract.Wallets.WalletGenerationContextObjectType;
 
 namespace VaultApi.Worker.MessageConsumers
 {
@@ -78,7 +79,18 @@ namespace VaultApi.Worker.MessageConsumers
                 ProtocolCode = blockchain.Protocol.Code,
                 Group = @event.Group,
                 CreatedAt = @event.CreatedAt,
-                UpdatedAt = @event.UpdatedAt
+                UpdatedAt = @event.UpdatedAt,
+                WalletGenerationContext = new Common.ReadModels.Wallets.WalletGenerationContext()
+                {
+                    ObjectId = @event.WalletGenerationContext.ObjectId,
+                    ObjectType = @event.WalletGenerationContext.ObjectType switch {
+                        WalletGenerationContextObjectType.BrokerAccount => Common.ReadModels.Wallets.WalletGenerationContextObjectType.BrokerAccount,
+                        WalletGenerationContextObjectType.Account => Common.ReadModels.Wallets.WalletGenerationContextObjectType.Account,
+                        _ => throw new ArgumentOutOfRangeException(nameof(@event.WalletGenerationContext.ObjectType), 
+                            @event.WalletGenerationContext.ObjectType, null)
+                    },
+                    ReferenceId = @event.WalletGenerationContext.ReferenceId
+                }
             };
 
             await _walletGenerationRequestRepository.InsertOrUpdateAsync(walletGenerationRequest);
