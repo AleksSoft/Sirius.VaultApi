@@ -1,6 +1,6 @@
 ﻿namespace VaultApi.Common.ReadModels.Wallets
 {
-    public enum WalletGenerationContextType
+    public enum WalletGenerationContextObjectType
     {
         BrokerAccount = 0,
         Account = 1

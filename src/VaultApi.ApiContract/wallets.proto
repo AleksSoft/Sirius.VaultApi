@@ -121,13 +121,13 @@ message RejectWalletGenerationRequestErrorResponseBody {
     string error_message = 2;
 }
 
-enum WalletGenerationContextType {
+enum WalletGenerationContextObjectType {
   BROKER_ACCOUNT = 0;
   ACCOUNT = 1;
 }
 
 message WalletGenerationContext {
   int64 object_id = 1;
-  WalletGenerationContextType object_type = 2;
+  WalletGenerationContextObjectType object_type = 2;
   google.protobuf.StringValue reference_id = 3;
 }

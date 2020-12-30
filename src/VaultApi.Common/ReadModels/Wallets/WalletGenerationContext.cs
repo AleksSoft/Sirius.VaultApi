@@ -6,7 +6,7 @@ namespace VaultApi.Common.ReadModels.Wallets
 {
     public class WalletGenerationContext
     {
-        public WalletGenerationContextType ObjectType { get; set; }
+        public WalletGenerationContextObjectType ObjectType { get; set; }
 
         public long ObjectId { get; set; }
 

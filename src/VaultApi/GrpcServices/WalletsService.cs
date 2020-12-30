@@ -12,7 +12,7 @@ using VaultApi.Common.Persistence.Wallets;
 using VaultApi.Common.ReadModels.Vaults;
 using VaultApi.Extensions;
 using VaultApi.Utils;
-using WalletGenerationContextType = VaultApi.Common.ReadModels.Wallets.WalletGenerationContextType;
+using WalletGenerationContextObjectType = VaultApi.Common.ReadModels.Wallets.WalletGenerationContextObjectType;
 
 namespace VaultApi.GrpcServices
 {
@@ -77,11 +77,11 @@ namespace VaultApi.GrpcServices
                     TenantId = walletGenerationRequest.TenantId,
                     CreatedAt = Timestamp.FromDateTime(walletGenerationRequest.CreatedAt.UtcDateTime),
                     UpdatedAt = Timestamp.FromDateTime(walletGenerationRequest.UpdatedAt.UtcDateTime),
-                    WalletGenerationContext = new WalletGenerationContext()
+                    WalletGenerationContext = new Swisschain.Sirius.VaultApi.ApiContract.Wallets.WalletGenerationContext()
                     {
                         ObjectType = walletGenerationRequest.WalletGenerationContext.ObjectType switch {
-                            WalletGenerationContextType.BrokerAccount => Swisschain.Sirius.VaultApi.ApiContract.Wallets.WalletGenerationContextType.BrokerAccount,
-                            WalletGenerationContextType.Account => Swisschain.Sirius.VaultApi.ApiContract.Wallets.WalletGenerationContextType.Account,
+                            WalletGenerationContextObjectType.BrokerAccount => Swisschain.Sirius.VaultApi.ApiContract.Wallets.WalletGenerationContextObjectType.BrokerAccount,
+                            WalletGenerationContextObjectType.Account => Swisschain.Sirius.VaultApi.ApiContract.Wallets.WalletGenerationContextObjectType.Account,
                             _ => throw new ArgumentOutOfRangeException(nameof(walletGenerationRequest.WalletGenerationContext.ObjectType),
                                 walletGenerationRequest.WalletGenerationContext.ObjectType, null)
                         },
